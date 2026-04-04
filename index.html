@@ -9156,8 +9156,6 @@
       activeColor: '#7646FF',
       proximity: 120,
       speedTrigger: 100,
-      shockRadius: 250,
-      shockStrength: 5,
       maxSpeed: 5000,
       resistance: 750,
       returnDuration: 1.5,
@@ -9325,7 +9323,7 @@
       let vx = ((e.clientX - il.x) / dt) * 1000;
       let vy = ((e.clientY - il.y) / dt) * 1000;
       let speed = Math.hypot(vx, vy);
-      const { maxSpeed, speedTrigger, proximity, shockStrength } = LOGIN_DOT_GRID;
+      const { maxSpeed, speedTrigger, proximity } = LOGIN_DOT_GRID;
       if (speed > maxSpeed) {
         const sc = maxSpeed / speed;
         vx *= sc;
@@ -9361,40 +9359,15 @@
 
     const loginDotGridImpulseThrottled = loginDotGridThrottle(loginDotGridApplyMoveImpulse, 50);
 
-    function loginDotGridOnClickShock(e) {
-      if (e.target.closest('.kk-login-card')) return;
-      const canvas = document.getElementById('loginDotGridCanvas');
-      if (!canvas || loginDotGridDots.length === 0) return;
-      const rect = canvas.getBoundingClientRect();
-      const cx = e.clientX - rect.left;
-      const cy = e.clientY - rect.top;
-      const { shockRadius, shockStrength } = LOGIN_DOT_GRID;
-      for (const dot of loginDotGridDots) {
-        const dist = Math.hypot(dot.cx - cx, dot.cy - cy);
-        if (dist < shockRadius && !dot._busy) {
-          dot._busy = true;
-          const falloff = Math.max(0, 1 - dist / shockRadius);
-          const pushX = (dot.cx - cx) * shockStrength * falloff;
-          const pushY = (dot.cy - cy) * shockStrength * falloff;
-          dot.vx += pushX * 0.011;
-          dot.vy += pushY * 0.011;
-        }
-      }
-    }
-
     function startLoginDotGrid(signal) {
       destroyLoginDotGrid();
       buildLoginDotGrid();
       const wrap = document.querySelector('#loginRoot .kk-login-dotgrid-wrap');
-      const root = document.getElementById('loginRoot');
       if ('ResizeObserver' in window && wrap) {
         loginDotGridResizeObserver = new ResizeObserver(() => buildLoginDotGrid());
         loginDotGridResizeObserver.observe(wrap);
       } else {
         window.addEventListener('resize', buildLoginDotGrid, { signal });
-      }
-      if (root) {
-        root.addEventListener('click', loginDotGridOnClickShock, { signal });
       }
       loginDotGridRafId = requestAnimationFrame(loginDotGridLoop);
     }
