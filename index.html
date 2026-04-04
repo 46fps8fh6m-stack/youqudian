@@ -482,7 +482,7 @@
           </div>
           <div class="text-[10px] text-sky-900/90 mt-2 space-y-1.5 leading-relaxed">
             <p>
-              <strong class="text-sky-950">配好 Redis 后，下面总账仍写 localStorage？</strong>属正常：界面先写本机再展示；<strong>默认</strong>保存后自动推全量到 Redis（可关掉）；<strong>无需填写</strong>本页昵称也会按登录身份自动槽位同步。手动「上传」可立即强制同步。<strong>换手机：</strong>同一网址 + <strong>同一身份</strong>（都登超级或都登同一城合伙）即同一把钥匙；或手填相同昵称。
+              <strong class="text-sky-950">配好 Redis 后，下面总账仍写 localStorage？</strong>属正常：界面先写本机再展示；<strong>默认</strong>保存后自动推全量到 Redis（可关掉）；<strong>无需填写</strong>本页昵称也会按登录身份自动槽位同步。<strong>每次打开或刷新页面</strong>会自动从云端拉一次全量（同一次加载不重复拉），另一台保存后换手机打开本站即可看到档期。手动「上传 / 拉取」仍可随时用。<strong>换手机：</strong>同一网址 + <strong>同一身份</strong>（都登超级或都登同一城合伙）即同一把钥匙；或手填相同昵称。
             </p>
             <p>
               <strong class="text-sky-950">线上（Vercel）：</strong>项目 Environment Variables 填 <span class="font-mono">REDIS_URL</span> → Deployments 里 <strong>Redeploy</strong> 一次 → 自测浏览器打开
@@ -2360,13 +2360,34 @@
 
     let kkcamCloudPushTimer = null;
 
+    /** 防止同一次页面加载内重复拉取；刷新页面会重置，换手机/刷新后都会再拉云端。 */
+    let kkcamSessionPullStarted = false;
+
     function schedulePushFullStateToCloud() {
-      if (!getKkcamSyncUser()) return;
       if (!kkcamIsAutopushEnabled()) return;
       clearTimeout(kkcamCloudPushTimer);
       kkcamCloudPushTimer = setTimeout(() => {
-        pushFullStateToCloud(false).catch(() => {});
+        void (async () => {
+          await ensureAutoSyncUserIfEmpty();
+          if (!getKkcamSyncUser()) return;
+          await pushFullStateToCloud(false);
+        })();
       }, 500);
+    }
+
+    /** 每个浏览器标签页会话内从云端拉一次全量，换手机打开也能看到另一台已上传的档期（覆盖本机内存与 localStorage）。 */
+    async function maybeSessionPullFromCloudOnce() {
+      try {
+        await ensureAutoSyncUserIfEmpty();
+        if (!getKkcamSyncUser()) return;
+        if (kkcamSessionPullStarted) return;
+        kkcamSessionPullStarted = true;
+        const ok = await pullFullStateFromCloudInner(false);
+        if (ok) {
+          render();
+          updateCalc();
+        }
+      } catch (e) {}
     }
 
     async function kkcamParseJsonOrText(res) {
@@ -2581,16 +2602,7 @@
     }
 
     async function maybeAutoHydrateFromCloudWhenEmpty() {
-      try {
-        await ensureAutoSyncUserIfEmpty();
-        const user = getKkcamSyncUser();
-        if (!user || legacyLocalStorageLooksPopulated()) return;
-        const ok = await pullFullStateFromCloudInner(false);
-        if (ok) {
-          render();
-          updateCalc();
-        }
-      } catch (e) {}
+      await maybeSessionPullFromCloudOnce();
     }
 
     function downloadKkcamFullExport() {
@@ -2689,9 +2701,11 @@
       if (inp) {
         inp.value = getKkcamSyncUser();
         inp.addEventListener('blur', () => {
+          const prev = getKkcamSyncUser();
           setKkcamSyncUser(inp.value);
+          if (prev !== getKkcamSyncUser()) kkcamSessionPullStarted = false;
           void maybeAutoMigrateLegacyLocalToCloud();
-          void maybeAutoHydrateFromCloudWhenEmpty();
+          void maybeSessionPullFromCloudOnce();
         });
       }
       if (ap) {
