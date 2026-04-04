@@ -48,16 +48,26 @@
     /* —— CamSaaS 风登录壳（仅 #loginRoot 内） —— */
     #loginRoot.kk-login-root {
       font-family: 'DM Sans', -apple-system, system-ui, sans-serif;
-      background: #fafafa;
-      color: #0a0a0a;
+      background: linear-gradient(155deg, #080a0f 0%, #0f1219 42%, #0a0c12 100%);
+      color: #f4f4f5;
       overflow: hidden;
+    }
+    .kk-login-network-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+      display: block;
     }
     .kk-login-grid-bg {
       position: absolute;
       inset: -12%;
-      background-image: radial-gradient(circle, #c4c4cc 1.1px, transparent 1.1px);
-      background-size: 22px 22px;
-      opacity: 0.45;
+      z-index: 1;
+      background-image: radial-gradient(circle, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 24px 24px;
+      opacity: 0.9;
       pointer-events: none;
       transform: translate3d(0, 0, 0);
       transition: transform 0.15s ease-out;
@@ -68,7 +78,7 @@
       font-family: 'JetBrains Mono', ui-monospace, monospace;
       font-size: 10px;
       letter-spacing: 0.06em;
-      color: #71717a;
+      color: rgba(255, 255, 255, 0.38);
       user-select: none;
       pointer-events: none;
     }
@@ -122,7 +132,7 @@
     }
     .kk-login-main {
       position: relative;
-      z-index: 10;
+      z-index: 20;
       width: 100%;
       max-width: 56rem;
       margin: 0 auto;
@@ -156,44 +166,26 @@
         max-width: 26rem;
       }
     }
-    .kk-login-canvas-wrap {
-      position: relative;
-      width: min(100%, 22rem);
-      height: min(52vw, 14rem);
-      margin: 0 auto 0.5rem;
-      pointer-events: none;
-    }
-    @media (min-width: 900px) {
-      .kk-login-canvas-wrap {
-        width: 100%;
-        height: 16rem;
-        margin: 0 0 0.25rem;
-      }
-    }
-    #loginParticleCanvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-    }
     .kk-login-logo {
       font-size: clamp(2rem, 6vw, 3rem);
       font-weight: 700;
       letter-spacing: -0.03em;
       line-height: 1.05;
-      color: #09090b;
+      color: #fafafa;
+      text-shadow: 0 1px 24px rgba(0, 0, 0, 0.35);
     }
     .kk-login-logo-sub {
       margin-top: 0.2rem;
       font-size: clamp(1.1rem, 2.8vw, 1.35rem);
       font-weight: 600;
-      color: #27272a;
+      color: rgba(255, 255, 255, 0.82);
       letter-spacing: 0.02em;
     }
     .kk-login-tagline {
       margin-top: 0.75rem;
       font-size: 0.8rem;
       font-style: italic;
-      color: #a1a1aa;
+      color: rgba(255, 255, 255, 0.42);
     }
     .kk-login-card {
       position: relative;
@@ -201,8 +193,12 @@
       max-width: 22rem;
       padding: 2.25rem 1.75rem 1.75rem;
       background: #fff;
-      border: 1px solid #e4e4e7;
-      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.08), 0 12px 24px -8px rgba(0, 0, 0, 0.04);
+      color: #0a0a0a;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow:
+        0 0 0 1px rgba(0, 0, 0, 0.04),
+        0 28px 56px -16px rgba(0, 0, 0, 0.45),
+        0 12px 32px -8px rgba(0, 0, 0, 0.25);
       animation: kk-login-card-in 0.7s ease-out 0.08s both;
     }
     .kk-login-bracket {
@@ -342,6 +338,7 @@
   <!-- 口令登录（CamSaaS 风 · 超级 / 各站合伙） -->
   <div id="loginRoot" class="kk-login-root fixed inset-0 z-[100]">
     <div class="kk-login-grid-bg" aria-hidden="true"></div>
+    <canvas id="loginNetworkCanvas" class="kk-login-network-canvas" width="400" height="300" aria-hidden="true"></canvas>
     <div class="kk-login-hud kk-login-hud-tl">+ SYS.READY</div>
     <div class="kk-login-hud kk-login-hud-tr" id="loginHudClock">0000-00-00 00:00:00.000 +</div>
     <div class="kk-login-hud kk-login-hud-bl" id="loginHudCoords">+ COORDS: 00.00.00</div>
@@ -349,9 +346,6 @@
 
     <div class="kk-login-main">
       <div class="kk-login-brand">
-        <div class="kk-login-canvas-wrap" aria-hidden="true">
-          <canvas id="loginParticleCanvas" width="400" height="280"></canvas>
-        </div>
         <h1 class="kk-login-logo">有趣点</h1>
         <p class="kk-login-logo-sub">相机屋 · 档期与资管</p>
         <p class="kk-login-tagline">档期 · 机身 · 云同步</p>
@@ -8866,8 +8860,8 @@
     let loginShellRaf = null;
     let loginShellClockTimer = null;
     let loginShellMouseAbort = null;
-    /** @type {{ x: number, y: number, z: number }[]|null} */
-    let loginParticlePoints = null;
+    /** @type {{ x: number, y: number, vx: number, vy: number }[]|null} */
+    let loginNetworkPoints = null;
 
     function destroyLoginShell() {
       if (loginShellRaf != null) {
@@ -8908,8 +8902,6 @@
       tickClock();
       loginShellClockTimer = setInterval(tickClock, 48);
 
-      let mx = 0;
-      let my = 0;
       loginShellMouseAbort = new AbortController();
       const gridBg = root.querySelector('.kk-login-grid-bg');
       root.addEventListener(
@@ -8917,8 +8909,6 @@
         (e) => {
           const iw = Math.max(window.innerWidth, 1);
           const ih = Math.max(window.innerHeight, 1);
-          mx = (e.clientX / iw - 0.5) * 2;
-          my = (e.clientY / ih - 0.5) * 2;
           if (coordEl) {
             const xv = ((e.clientX / iw) * 99) | 0;
             const yv = ((e.clientY / ih) * 99) | 0;
@@ -8934,77 +8924,121 @@
         { signal: loginShellMouseAbort.signal }
       );
 
-      const canvas = document.getElementById('loginParticleCanvas');
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      const n = 400;
-      if (!loginParticlePoints) {
-        loginParticlePoints = [];
-        for (let i = 0; i < n; i++) {
-          const phi = Math.acos(1 - (2 * (i + 0.5)) / n);
-          const theta = Math.PI * (1 + Math.sqrt(5)) * i;
-          loginParticlePoints.push({
-            x: Math.sin(phi) * Math.cos(theta),
-            y: Math.cos(phi),
-            z: Math.sin(phi) * Math.sin(theta),
-          });
+      const netCanvas = document.getElementById('loginNetworkCanvas');
+      if (!netCanvas) return;
+      const nctx = netCanvas.getContext('2d');
+      const linkDist = 120;
+      const linkDistSq = linkDist * linkDist;
+      const loginNetworkBuf = { w: 0, h: 0 };
+
+      function syncNetworkCanvasSize() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const needW = Math.max(1, Math.floor(w * dpr));
+        const needH = Math.max(1, Math.floor(h * dpr));
+        if (netCanvas.width !== needW || netCanvas.height !== needH) {
+          netCanvas.width = needW;
+          netCanvas.height = needH;
+          netCanvas.style.width = w + 'px';
+          netCanvas.style.height = h + 'px';
+          nctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          const prevW = loginNetworkBuf.w;
+          const prevH = loginNetworkBuf.h;
+          if (loginNetworkPoints && loginNetworkPoints.length && prevW > 0 && prevH > 0) {
+            loginNetworkPoints.forEach((p) => {
+              p.x = (p.x / prevW) * w;
+              p.y = (p.y / prevH) * h;
+            });
+          }
+          loginNetworkBuf.w = w;
+          loginNetworkBuf.h = h;
+        } else {
+          nctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
+        return { w, h, dpr };
       }
-      const pts = loginParticlePoints;
-      const t0 = performance.now();
-      const draw = () => {
+      const targetCount = Math.min(86, Math.max(46, Math.floor((window.innerWidth * window.innerHeight) / 15000)));
+      if (!loginNetworkPoints || loginNetworkPoints.length !== targetCount) {
+        loginNetworkPoints = Array.from({ length: targetCount }, () => ({
+          x: Math.random() * window.innerWidth,
+          y: Math.random() * window.innerHeight,
+          vx: (Math.random() - 0.5) * 0.26,
+          vy: (Math.random() - 0.5) * 0.26,
+        }));
+      }
+
+      function eraseLoginUiMask(ctx, canvasEl) {
+        const pad = 28;
+        const cRect = canvasEl.getBoundingClientRect();
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-out';
+        ctx.fillStyle = 'rgba(0,0,0,1)';
+        document.querySelectorAll('.kk-login-card, .kk-login-brand').forEach((el) => {
+          const r = el.getBoundingClientRect();
+          const x = r.left - cRect.left - pad;
+          const y = r.top - cRect.top - pad;
+          ctx.fillRect(x, y, r.width + 2 * pad, r.height + 2 * pad);
+        });
+        ctx.restore();
+      }
+
+      const drawNet = () => {
         const lr = document.getElementById('loginRoot');
         if (!lr || lr.classList.contains('hidden')) {
           destroyLoginShell();
           return;
         }
-        const wrap = canvas.parentElement;
-        const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
-        const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        const bw = Math.max(1, rect.width | 0);
-        const bh = Math.max(1, rect.height | 0);
-        if (canvas.width !== bw * dpr || canvas.height !== bh * dpr) {
-          canvas.width = bw * dpr;
-          canvas.height = bh * dpr;
+        const { w, h } = syncNetworkCanvasSize();
+        nctx.clearRect(0, 0, w, h);
+
+        const pts = loginNetworkPoints;
+        if (!pts || !pts.length) {
+          loginShellRaf = requestAnimationFrame(drawNet);
+          return;
         }
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        ctx.clearRect(0, 0, bw, bh);
-        const cx = bw * 0.5;
-        const cy = bh * 0.55;
-        const R = Math.min(bw, bh) * 0.42;
-        const t = (performance.now() - t0) / 1000;
-        const Ay = t * 0.55 + mx * 0.65;
-        const Ax = my * 0.35 + Math.sin(t * 0.35) * 0.12;
-        const cosY = Math.cos(Ay);
-        const sinY = Math.sin(Ay);
-        const cosX = Math.cos(Ax);
-        const sinX = Math.sin(Ax);
-        const projected = [];
         for (let i = 0; i < pts.length; i++) {
           const p = pts[i];
-          const x1 = p.x * cosY + p.z * sinY;
-          const z1 = -p.x * sinY + p.z * cosY;
-          const y1 = p.y;
-          const y2 = y1 * cosX - z1 * sinX;
-          const z2 = y1 * sinX + z1 * cosX;
-          const x2 = x1;
-          const persp = 2.35;
-          const sc = persp / (persp + z2);
-          projected.push({ sx: cx + x2 * sc * R, sy: cy + y2 * sc * R, z2, sc });
+          p.x += p.vx;
+          p.y += p.vy;
+          if (p.x < -4) p.x = w + 4;
+          else if (p.x > w + 4) p.x = -4;
+          if (p.y < -4) p.y = h + 4;
+          else if (p.y > h + 4) p.y = -4;
         }
-        projected.sort((a, b) => a.z2 - b.z2);
-        for (let j = 0; j < projected.length; j++) {
-          const q = projected[j];
-          const al = 0.12 + (q.z2 + 1) * 0.28;
-          const rad = Math.max(0.75, q.sc * 2.05);
-          ctx.beginPath();
-          ctx.arc(q.sx, q.sy, rad, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(0,0,0,${Math.min(0.82, al)}`;
-          ctx.fill();
+
+        nctx.lineCap = 'round';
+        for (let i = 0; i < pts.length; i++) {
+          for (let j = i + 1; j < pts.length; j++) {
+            const a = pts[i];
+            const b = pts[j];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const d2 = dx * dx + dy * dy;
+            if (d2 > linkDistSq || d2 < 0.01) continue;
+            const d = Math.sqrt(d2);
+            const t = 1 - d / linkDist;
+            nctx.strokeStyle = `rgba(255,255,255,${t * 0.2})`;
+            nctx.lineWidth = 0.85;
+            nctx.beginPath();
+            nctx.moveTo(a.x, a.y);
+            nctx.lineTo(b.x, b.y);
+            nctx.stroke();
+          }
         }
-        loginShellRaf = requestAnimationFrame(draw);
+
+        for (let i = 0; i < pts.length; i++) {
+          const p = pts[i];
+          nctx.beginPath();
+          nctx.arc(p.x, p.y, 1.45, 0, Math.PI * 2);
+          nctx.fillStyle = 'rgba(255,255,255,0.9)';
+          nctx.fill();
+        }
+
+        eraseLoginUiMask(nctx, netCanvas);
+        loginShellRaf = requestAnimationFrame(drawNet);
       };
-      loginShellRaf = requestAnimationFrame(draw);
+      loginShellRaf = requestAnimationFrame(drawNet);
     }
 
     async function boot() {
