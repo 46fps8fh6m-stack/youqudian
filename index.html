@@ -46,7 +46,7 @@
               lime: '#DCFF00',
               orange: '#FF6717',
               pale: '#FFF533',
-              canvas: '#EEF6E8',
+              canvas: '#F5F7F6',
               surface: '#FFFFFF',
               ink: '#114238',
               muted: '#4A6560',
@@ -319,15 +319,15 @@
       text-indent: 0.35em;
       text-transform: uppercase;
       color: #114238;
-      background: linear-gradient(145deg, #dcff00 0%, #fff533 55%, #c8f032 100%);
-      border: 2px solid rgba(17, 66, 56, 0.2);
+      background: #ffffff;
+      border: 2px solid #114238;
       cursor: pointer;
-      box-shadow: 0 10px 28px rgba(220, 255, 0, 0.35);
-      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 4px 14px rgba(17, 66, 56, 0.08);
+      transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
     }
     .kk-login-enter:hover {
-      filter: brightness(1.03);
-      box-shadow: 0 14px 34px rgba(220, 255, 0, 0.45);
+      background: rgba(220, 255, 0, 0.12);
+      box-shadow: 0 6px 18px rgba(17, 66, 56, 0.1);
       transform: translateY(-1px);
     }
     .kk-login-enter:active {
@@ -372,7 +372,7 @@
 
     /* —— 设计令牌 · Uni Park 系（荧光绿 × 森绿 × 橙点缀） —— */
     :root {
-      --kk-canvas: #eef6e8;
+      --kk-canvas: #f5f7f6;
       --kk-surface: #ffffff;
       --kk-ink: #114238;
       --kk-muted: #4a6560;
@@ -390,19 +390,25 @@
     }
     .kk-sidebar-item {
       border-radius: 22px;
-      transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+      border: 2px solid transparent;
+      transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out,
+        box-shadow 0.3s ease-in-out;
     }
     .kk-sidebar-item-active {
-      background: linear-gradient(135deg, rgba(220, 255, 0, 0.55) 0%, rgba(255, 245, 51, 0.35) 100%);
+      background: #ffffff;
+      border-color: var(--kk-lime);
       color: var(--kk-forest);
       font-weight: 700;
+      box-shadow: 0 1px 0 rgba(17, 66, 56, 0.04);
     }
     .kk-sidebar-city {
       border-radius: 18px;
-      transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+      border-width: 2px;
+      transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, border-color 0.3s ease-in-out;
     }
     .kk-sidebar-city-active {
-      background: linear-gradient(135deg, rgba(220, 255, 0, 0.4) 0%, rgba(255, 245, 51, 0.28) 100%);
+      background: #ffffff;
+      border-color: var(--kk-forest) !important;
       color: var(--kk-forest);
       font-weight: 600;
     }
@@ -414,17 +420,20 @@
     .kk-surface-card:hover {
       box-shadow: 0 14px 36px rgba(17, 66, 56, 0.1);
     }
-    /** 核心数据区：浅黄绿渐变条 + 森绿字 */
+    /** 核心数据区：白底 + 品牌色描边（左侧荧光条点缀） */
     .kk-card-primary {
       border-radius: 28px;
-      background: linear-gradient(145deg, #fff533 0%, #dcff00 38%, #c8f070 100%);
-      box-shadow: 0 12px 32px rgba(220, 255, 0, 0.25), 0 4px 14px rgba(17, 66, 56, 0.08);
-      border: 2px solid rgba(17, 66, 56, 0.12);
+      background: #ffffff;
+      box-shadow: var(--kk-shadow);
+      border: 2px solid rgba(17, 66, 56, 0.18);
+      border-left-width: 5px;
+      border-left-color: var(--kk-lime);
       color: var(--kk-forest);
     }
-    /** 侧栏 / 顶栏品牌图标底 */
+    /** 侧栏 / 顶栏品牌图标：白底 + 荧光绿圈边 */
     .kk-icon-bubble-sky {
-      background: linear-gradient(145deg, #dcff00 0%, #fff533 100%);
+      background: #ffffff;
+      border: 2px solid var(--kk-lime);
       color: #114238;
     }
   </style>
@@ -506,7 +515,7 @@
     </div>
     <div class="flex-1 overflow-y-auto overscroll-y-contain">
       <div class="max-w-3xl mx-auto px-4 sm:px-5 py-6 pb-24">
-        <div class="rounded-2xl border border-kk-line bg-kk-lime/20 px-3 py-3 sm:px-4">
+        <div class="rounded-2xl border-2 border-kk-forest/15 bg-white px-3 py-3 sm:px-4 shadow-sm">
           <p class="text-xs font-semibold text-kk-forest mb-2">全站云同步（Redis · 含各城机身与调拨）</p>
           <div class="flex flex-col gap-3">
             <div class="flex-1 min-w-0">
@@ -591,12 +600,12 @@
   <div class="flex flex-col lg:flex-row min-h-[100vh] bg-kk-canvas">
     <aside
       id="kkAppSidebar"
-      class="w-full lg:w-[260px] lg:min-h-screen shrink-0 border-b lg:border-b-0 lg:border-r border-kk-line/90 bg-white/92 backdrop-blur-xl lg:rounded-r-[28px] lg:shadow-macaron flex flex-col"
+      class="w-full lg:w-[260px] lg:min-h-screen shrink-0 border-b lg:border-b-0 lg:border-r border-kk-line/90 bg-white backdrop-blur-xl lg:rounded-r-[28px] lg:shadow-macaron flex flex-col"
     >
       <div class="p-6 border-b border-kk-line/80">
         <div class="flex items-center gap-3">
           <div
-            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[22px] kk-icon-bubble-sky shadow-sm"
+            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[22px] kk-icon-bubble-sky shadow-sm box-border"
             aria-hidden="true"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -620,7 +629,7 @@
     <div class="flex-1 flex flex-col min-w-0 min-h-0">
       <header
         id="kkTopBar"
-        class="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-3 bg-white/80 backdrop-blur-xl border-b border-kk-line/80 px-5 py-3.5 shadow-[0_1px_0_rgba(255,255,255,0.6)]"
+        class="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-3 bg-white/95 backdrop-blur-xl border-b border-kk-line px-5 py-3.5"
       >
         <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 min-w-0">
           <span id="topBarCity" class="text-base font-bold text-kk-ink tracking-tight">工作台</span>
@@ -653,7 +662,7 @@
           <button
             type="button"
             id="btnOpenCloudSync"
-            class="rounded-[22px] px-3.5 py-2 text-xs font-semibold border-2 border-kk-forest/25 bg-kk-lime/90 text-kk-forest hover:bg-kk-lime transition-all duration-300 shadow-sm"
+            class="rounded-[22px] px-3.5 py-2 text-xs font-semibold border-2 border-kk-forest bg-white text-kk-forest hover:bg-kk-lime/15 transition-all duration-300 shadow-sm"
             title="全站云同步（Redis）"
           >
             云同步
@@ -702,7 +711,7 @@
                 </div>
               </div>
               <p class="text-[11px] text-kk-muted mt-2">上述日期同时用于：档期穿透筛选、下方「区间总账」与「账单流水」汇总。</p>
-              <p id="scheduleHint" class="hidden text-xs text-kk-forest bg-gradient-to-br from-kk-pale/50 to-kk-lime/25 border-2 border-kk-forest/15 rounded-[26px] px-4 py-3.5 leading-relaxed shadow-sm">
+              <p id="scheduleHint" class="hidden text-xs text-kk-forest bg-white border-2 border-kk-lime/70 rounded-[26px] px-4 py-3.5 leading-relaxed shadow-sm">
                 已启用档期筛选：<strong class="font-semibold text-kk-forest">黄绿亮框</strong>表示所选日期段内可租；<strong class="font-semibold text-kk-orange">橙框</strong>表示该段已有占用——<strong class="font-semibold text-kk-forest">仍可点击卡片</strong>，在弹窗里为<strong>其他日期</strong>录入新档期。清空或改掉顶部日期后，卡片会恢复常亮样式。选定机型时还将穿透全网各站展示空闲机身。
               </p>
               <div id="finRangeSummary" class="mt-5 kk-card-primary px-6 py-5 sm:px-7 sm:py-5">
@@ -722,7 +731,7 @@
     <div id="mainSchedule">
     <section>
       <div id="superPanels" class="hidden mb-8 space-y-6">
-        <div id="panelNanchangHQ" class="rounded-2xl border border-kk-orange/25 bg-gradient-to-br from-kk-pale/30 to-white p-5 shadow-sm">
+        <div id="panelNanchangHQ" class="rounded-2xl border-2 border-kk-orange/35 bg-white p-5 shadow-sm">
           <div class="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h2 class="text-lg font-semibold text-kk-forest">我的南昌大本营</h2>
@@ -738,7 +747,7 @@
           <p class="text-xs text-kk-muted mt-1">深圳 / 杭州 / 武汉 / 南昌 · 机身「俏度」一眼对比，便于从南昌调拨支援</p>
           <div id="heatmapBody" class="mt-4 space-y-3"></div>
         </div>
-        <div id="panelGlobalAnalytics" class="rounded-2xl border border-kk-orange/35 bg-gradient-to-br from-kk-pale/40 via-white to-kk-orange/10 p-5 shadow-sm">
+        <div id="panelGlobalAnalytics" class="rounded-2xl border-2 border-kk-line bg-white p-5 shadow-sm">
           <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
             <div>
               <h2 class="text-lg font-semibold text-kk-ink">全网穿透分析</h2>
@@ -749,9 +758,9 @@
               <button type="button" id="btnShareGlobalReport" class="rounded-full border border-kk-orange/45 text-kk-forest text-xs font-medium px-4 py-2 hover:bg-kk-pale/40">系统分享…</button>
             </div>
           </div>
-          <div class="overflow-x-auto rounded-xl border border-kk-pale/50 bg-white/80 mb-6">
+          <div class="overflow-x-auto rounded-xl border-2 border-kk-line bg-white mb-6">
             <table class="w-full text-sm text-left min-w-[520px]">
-              <thead class="text-xs text-kk-forest/80 uppercase bg-kk-pale/35">
+              <thead class="text-xs text-kk-forest/80 uppercase bg-kk-canvas border-b border-kk-line">
                 <tr>
                   <th class="px-3 py-2">城市</th>
                   <th class="px-3 py-2">机身数</th>
@@ -827,28 +836,28 @@
             <input type="date" id="finEnd" class="rounded-xl bg-white border border-kk-line px-3 py-2 text-sm text-kk-ink shadow-sm" />
           </div>
           <button type="button" id="btnFinDefaultCycle" class="rounded-xl bg-kk-line/50 hover:bg-kk-line/70 text-kk-ink text-sm px-4 py-2 border border-kk-line">默认：上月5日—本月5日</button>
-          <button type="button" id="btnFinApply" class="rounded-xl bg-kk-lime hover:bg-kk-lime/90 text-kk-forest text-sm font-bold px-4 py-2 shadow-sm border-2 border-kk-forest/15">应用周期</button>
+          <button type="button" id="btnFinApply" class="rounded-xl bg-white hover:bg-kk-lime/10 text-kk-forest text-sm font-bold px-4 py-2 shadow-sm border-2 border-kk-forest">应用周期</button>
         </div>
       </div>
 
-      <div class="rounded-2xl border border-kk-orange/35 bg-gradient-to-br from-kk-pale/35 to-kk-orange/10 p-6 mb-6 text-center">
+      <div class="rounded-2xl border-2 border-kk-orange/40 bg-white p-6 mb-6 text-center shadow-sm">
         <p class="text-xs uppercase tracking-widest text-kk-orange/80 mb-2">最终净利润（吴仪凯 · 本周期 · 账面）</p>
         <p id="finNetProfit" class="text-4xl sm:text-5xl font-bold text-kk-orange tabular-nums">¥0.00</p>
         <p class="text-xs text-kk-muted mt-3">已扣除平台费、码费、杂费、运费及合伙分成；金额保留两位小数</p>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-        <div class="rounded-xl border border-kk-forest/25 bg-kk-lime/15 p-4">
+        <div class="rounded-xl border-2 border-kk-lime bg-white p-4 shadow-sm">
           <p class="text-xs font-medium text-kk-forest">已落袋纯利（估）</p>
           <p id="finPocketNet" class="text-xl font-bold text-kk-forest font-mono mt-1">¥0.00</p>
           <p class="text-[10px] text-kk-forest/75 mt-1 leading-relaxed">同行/撮合单：已结清外延后总部 15%（或同行单 30% 池内吴份额）+ 跨站自有完单总部 50%</p>
         </div>
-        <div class="rounded-xl border border-kk-orange/25 bg-kk-orange/8 p-4">
+        <div class="rounded-xl border-2 border-kk-orange/45 bg-white p-4 shadow-sm">
           <p class="text-xs font-medium text-kk-forest">待付同行总额</p>
           <p id="finPeerPayPending" class="text-xl font-bold text-kk-forest font-mono mt-1">¥0.00</p>
           <p class="text-[10px] text-kk-forest/70 mt-1">同行/外调撮合单尚未点「结清同行款项」的应付外延合计</p>
         </div>
-        <div class="rounded-xl border border-kk-orange/30 bg-kk-pale/35 p-4">
+        <div class="rounded-xl border-2 border-kk-forest/25 bg-white p-4 shadow-sm">
           <p class="text-xs font-medium text-kk-forest">本月待结给合伙人</p>
           <p id="finPending" class="text-xl font-bold text-kk-forest font-mono mt-1">¥0.00</p>
           <p class="text-[10px] text-kk-forest/75 mt-1">与同行款剥离：未勾选「合伙人已结」的合伙提成/分红池</p>
@@ -856,24 +865,24 @@
       </div>
 
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
-        <div class="rounded-xl bg-kk-canvas border border-kk-line p-4">
+        <div class="rounded-xl bg-white border border-kk-line p-4">
           <p class="text-xs text-kk-muted">总销售额</p>
           <p id="finGross" class="text-lg font-semibold text-kk-ink font-mono mt-1">¥0</p>
         </div>
-        <div class="rounded-xl bg-kk-canvas border border-kk-line p-4">
+        <div class="rounded-xl bg-white border border-kk-line p-4">
           <p class="text-xs text-kk-muted">总运营成本</p>
           <p id="finCosts" class="text-lg font-semibold text-kk-forest font-mono mt-1">¥0</p>
         </div>
-        <div class="rounded-xl bg-kk-canvas border border-kk-line p-4">
+        <div class="rounded-xl bg-white border border-kk-line p-4">
           <p class="text-xs text-kk-muted">合伙应付累计（本周期）</p>
           <p id="finPartnerOut" class="text-lg font-semibold text-kk-forest font-mono mt-1">¥0</p>
         </div>
-        <div class="rounded-xl bg-kk-canvas border border-kk-line p-4">
+        <div class="rounded-xl bg-white border border-kk-line p-4">
           <p class="text-xs text-kk-muted">说明</p>
           <p class="text-[11px] text-kk-muted mt-1 leading-snug">同行结清与合伙结算是两步；已完单且「合伙人已结」的订单在录单中不可再改金额。</p>
         </div>
       </div>
-      <div class="rounded-xl border border-kk-orange/25 bg-kk-orange/10 p-4 mb-8">
+      <div class="rounded-xl border-2 border-kk-orange/40 bg-white p-4 mb-8 shadow-sm">
         <p class="text-xs font-medium text-kk-forest">总额外支出（本周期）</p>
         <p class="text-lg font-semibold text-kk-orange font-mono mt-1" id="finTotalExtra">¥0.00</p>
         <p class="text-[11px] text-kk-forest/85 mt-1">各单「其他额外支出」合计（顺丰保价、补件、抹零等），已计入实际可分账扣减。</p>
@@ -1736,10 +1745,10 @@
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script>
     const STATUS_META = {
-      pending: { label: '待发货 / 已签单', bg: 'bg-kk-pale/30', border: 'border-kk-orange/30', text: 'text-kk-forest', dot: 'bg-kk-lime' },
-      renting: { label: '租赁中', bg: 'bg-kk-orange/10', border: 'border-kk-orange/35', text: 'text-kk-forest', dot: 'bg-kk-orange' },
-      idle: { label: '已完单 / 空闲', bg: 'bg-kk-lime/15', border: 'border-kk-forest/25', text: 'text-kk-forest', dot: 'bg-kk-forest' },
-      in_transit: { label: '运输中 · 调拨', bg: 'bg-kk-lime/15', border: 'border-kk-lime/40', text: 'text-kk-forest', dot: 'bg-kk-pale' },
+      pending: { label: '待发货 / 已签单', bg: 'bg-white', border: 'border-kk-orange/45', text: 'text-kk-forest', dot: 'bg-kk-orange' },
+      renting: { label: '租赁中', bg: 'bg-white', border: 'border-kk-orange/40', text: 'text-kk-forest', dot: 'bg-kk-orange' },
+      idle: { label: '已完单 / 空闲', bg: 'bg-white', border: 'border-kk-forest/30', text: 'text-kk-forest', dot: 'bg-kk-forest' },
+      in_transit: { label: '运输中 · 调拨', bg: 'bg-white', border: 'border-kk-lime', text: 'text-kk-forest', dot: 'bg-kk-lime' },
     };
 
     /**
@@ -2126,16 +2135,16 @@
       if (c.transferPending.toSiteId === sid) {
         return {
           label: '调拨中 / 待收货（可预订）',
-          bg: 'bg-kk-lime/15',
-          border: 'border-kk-line',
+          bg: 'bg-white',
+          border: 'border-kk-lime',
           text: 'text-kk-forest',
-          dot: 'bg-kk-pale',
+          dot: 'bg-kk-lime',
         };
       }
       if (c.transferPending.fromSiteId === sid && cameraSiteId(c) === sid) {
         return {
           label: '已调拨发出 · 在途',
-          bg: 'bg-kk-line/50',
+          bg: 'bg-white',
           border: 'border-kk-line',
           text: 'text-kk-muted',
           dot: 'bg-kk-muted/50',
@@ -3416,7 +3425,7 @@
       const dr = isScheduleSearchOn()
         ? `${rangeStart.value || '—'} ~ ${rangeEnd.value || '—'}`
         : '未启用档期范围筛选（可与主理人另约日期）';
-      return `<div class="mb-4 rounded-2xl border-2 border-kk-orange/50 bg-kk-pale/30 p-4 shadow-sm" id="kkShortageAlert">
+      return `<div class="mb-4 rounded-2xl border-2 border-kk-orange/50 bg-white p-4 shadow-sm" id="kkShortageAlert">
         <p class="text-sm font-bold text-kk-forest leading-snug">⚠️ 本站该机型目前档期已满。如需急用，请联系主理人尝试「同行调货」。</p>
         <p class="text-xs text-kk-orange/90 mt-2">机型关键词：<span class="font-medium">${q.replace(/</g, '').slice(0, 40)}</span> · 参考档期：${dr}</p>
         <button type="button" id="btnKkShortageCopy" class="mt-3 rounded-xl bg-kk-forest text-white text-sm font-semibold px-4 py-2.5 hover:bg-kk-forest/95">一键询问主理人</button>
@@ -3561,8 +3570,8 @@
       const onSchedule = citySubView === 'schedule';
       const base =
         'city-sub-tab rounded-[22px] px-4 py-2 text-sm font-medium border-2 transition-all duration-300 ease-in-out';
-      const active = ' bg-kk-lime/50 text-kk-forest border-kk-forest/25 font-bold shadow-sm';
-      const idle = ' bg-white text-kk-muted border-kk-line hover:bg-kk-line/40';
+      const active = ' bg-white text-kk-forest border-kk-lime font-bold shadow-sm';
+      const idle = ' bg-white text-kk-muted border-kk-line hover:border-kk-forest/20';
       if (ts) ts.className = base + (onSchedule ? active : idle);
       if (ta) ta.className = base + (!onSchedule ? active : idle);
       if (hint) hint.classList.toggle('hidden', !onSchedule);
@@ -3618,7 +3627,7 @@
           b.type = 'button';
           b.dataset.sidebarCity = city;
           b.className =
-            'kk-sidebar-city rounded-[18px] border border-kk-line px-2.5 py-1 text-xs font-medium text-kk-muted hover:bg-kk-line/50 transition-all duration-300';
+            'kk-sidebar-city rounded-[18px] border-2 border-kk-line px-2.5 py-1 text-xs font-medium text-kk-muted hover:bg-kk-canvas hover:border-kk-forest/15 transition-all duration-300';
           b.textContent = city;
           inner.appendChild(b);
         });
@@ -3648,7 +3657,6 @@
         const c = btn.getAttribute('data-sidebar-city');
         const on = isCityStationPage() && stationPage === c;
         btn.classList.toggle('kk-sidebar-city-active', on);
-        btn.classList.toggle('border-kk-lime', on);
       });
     }
 
@@ -3873,7 +3881,7 @@
           </div>`;
         })
         .join('');
-      return `<div class="mb-4 rounded-2xl border-2 border-kk-forest/30 bg-kk-lime/15 p-4 shadow-sm">
+      return `<div class="mb-4 rounded-2xl border-2 border-kk-lime bg-white p-4 shadow-sm">
         <p class="text-sm font-bold text-kk-forest">待接收调拨 · 共 ${pending.length} 台</p>
         <p class="text-xs text-kk-forest/85 mt-1">${
           isPartner()
@@ -3897,22 +3905,22 @@
       const toCityLbl = c.transferPending ? SITE_TO_CITY_LABEL[c.transferPending.toSiteId] || '目标' : '';
 
       let shell =
-        'rounded-[28px] border-2 p-5 shadow-card transition ' +
-        (isGhost ? 'cursor-default opacity-80 border-kk-line bg-white/80 text-kk-forest ' : outboundBusy ? 'cursor-pointer border-kk-orange/70 bg-kk-pale/30 ring-1 ring-kk-orange/40 text-kk-forest ' : 'cursor-pointer ');
+        'rounded-[28px] border-2 p-5 shadow-card transition bg-white ' +
+        (isGhost ? 'cursor-default opacity-80 border-kk-line text-kk-forest ' : outboundBusy ? 'cursor-pointer border-kk-orange text-kk-forest ' : 'cursor-pointer ');
       if (smart && conflict) {
         shell +=
-          'border-kk-orange bg-kk-pale/40 hover:border-kk-orange hover:bg-kk-pale/55 hover:shadow-md ring-2 ring-kk-orange/50 text-kk-forest ';
+          'border-kk-orange hover:border-kk-orange hover:shadow-md text-kk-forest ';
       } else if (smart && available) {
-        shell += 'border-kk-lime bg-[#F4FFCC] ring-2 ring-kk-lime shadow-md text-kk-forest ';
+        shell += 'border-kk-lime shadow-md text-kk-forest ';
       } else if (!isGhost && !outboundBusy) {
-        shell += 'border-kk-forest/20 bg-[#F7FFE8] hover:border-kk-forest/35 hover:shadow-md text-kk-forest ';
+        shell += 'border-kk-line hover:border-kk-forest/35 hover:shadow-md text-kk-forest ';
       }
 
       const conflictBadge =
         smart && conflict
-          ? '<span class="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-kk-orange text-white">筛选期内已占</span>'
+          ? '<span class="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold border-2 border-kk-orange text-kk-orange bg-white">筛选期内已占</span>'
           : smart && available
-            ? '<span class="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold bg-kk-forest text-kk-lime">可租</span>'
+            ? '<span class="shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-bold border-2 border-kk-forest text-kk-forest bg-white">可租</span>'
             : '';
 
       const todayDot = isDueTodayReturn(c)
@@ -3957,7 +3965,7 @@
               }
             </div>
             <div class="flex flex-col items-end gap-1">
-              ${c.dispatch ? `<span class="rounded-full px-2 py-0.5 text-[10px] font-bold bg-kk-orange/15 text-kk-orange border border-kk-orange/35">跨城调度</span>` : ''}
+              ${c.dispatch ? `<span class="rounded-full px-2 py-0.5 text-[10px] font-bold text-kk-orange border-2 border-kk-orange/50 bg-white">跨城调度</span>` : ''}
               ${conflictBadge}
             </div>
           </div>
@@ -3982,7 +3990,7 @@
           ${cardScheduleDestinationBlock(c)}
           ${
             canInitiateTransfer(c)
-              ? `<div class="mt-3 flex justify-end"><button type="button" data-kk-transfer-open="${c.id}" class="rounded-full border-2 border-kk-forest/30 bg-kk-lime/40 text-kk-forest text-xs font-bold px-3 py-1.5 hover:bg-kk-lime">发起跨城调拨</button></div>`
+              ? `<div class="mt-3 flex justify-end"><button type="button" data-kk-transfer-open="${c.id}" class="rounded-full border-2 border-kk-forest bg-white text-kk-forest text-xs font-bold px-3 py-1.5 hover:bg-kk-lime/15">发起跨城调拨</button></div>`
               : ''
           }
           <p class="text-[11px] mt-2 ${
@@ -4017,7 +4025,7 @@
       const parts = [];
       if (inboundHtml) parts.push(inboundHtml);
       const safeModel = model.replace(/</g, '');
-      parts.push(`<div class="mb-4 rounded-2xl border border-kk-line bg-kk-lime/20 p-4 text-sm text-kk-forest">
+      parts.push(`<div class="mb-4 rounded-2xl border-2 border-kk-forest/20 bg-white p-4 text-sm text-kk-forest shadow-sm">
     <p class="font-semibold">全网档期穿透</p>
     <p class="text-xs text-kk-forest/85 mt-1">机型 <strong>${safeModel}</strong> · 档期 ${s}～${e} · 已排除该时段与进行中/已预约订单重叠的机身；在途预入库须满足最早起租日（发起日+2 天）。</p>
   </div>`);
@@ -4047,9 +4055,9 @@
             const btn = pend
               ? `<span class="text-xs font-medium text-kk-orange">审核中</span>`
               : canReq
-                ? `<button type="button" class="kk-stock-transfer-req rounded-lg border border-kk-orange/40 bg-kk-lime/15 text-kk-forest text-xs font-bold px-3 py-1.5 hover:bg-kk-lime/20" data-camera-id="${cam.id}">申请调货</button>`
+                ? `<button type="button" class="kk-stock-transfer-req rounded-lg border-2 border-kk-forest bg-white text-kk-forest text-xs font-bold px-3 py-1.5 hover:bg-kk-lime/10" data-camera-id="${cam.id}">申请调货</button>`
                 : `<span class="text-xs text-kk-muted/70">请用目标站账号登录后申请</span>`;
-            return `<li class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-kk-lime/25 bg-kk-lime/15 px-3 py-2.5 text-sm">
+            return `<li class="flex flex-wrap items-center justify-between gap-2 rounded-xl border-2 border-kk-line bg-white px-3 py-2.5 text-sm hover:border-kk-lime/60">
           <span class="text-kk-ink">${String(cam.model).replace(/</g, '')}${unit}</span>
           ${btn}
         </li>`;
@@ -4088,7 +4096,7 @@
         emptyHint.classList.toggle('hidden', filtered.length > 0 || !!banner);
         const preStockHtml =
           preStock.length > 0
-            ? `<div class="mb-6 rounded-2xl border-2 border-kk-lime/90 bg-gradient-to-br from-kk-lime/20 to-kk-lime/12 p-4 sm:p-5 shadow-sm">
+            ? `<div class="mb-6 rounded-2xl border-2 border-kk-lime bg-white p-4 sm:p-5 shadow-sm">
             <div class="flex flex-wrap items-baseline justify-between gap-2 mb-1">
               <h3 class="text-sm font-bold text-kk-forest">预入库专区 · 调拨中 / 待收货</h3>
               <span class="text-xs font-mono font-semibold text-kk-muted">${preStock.length} 台</span>
@@ -4354,7 +4362,7 @@
           ${cities
             .map(
               (x) => `
-            <button type="button" class="overview-go text-left kk-surface-card border-2 border-kk-line bg-white p-6 hover:border-kk-lime hover:bg-kk-pale/20 transition-all duration-300 ease-in-out" data-page="${x.key}">
+            <button type="button" class="overview-go text-left kk-surface-card border-2 border-kk-line bg-white p-6 hover:border-kk-forest/35 hover:bg-white transition-all duration-300 ease-in-out" data-page="${x.key}">
               <div class="text-lg font-bold text-kk-ink">${x.label}</div>
               <p class="text-sm text-kk-muted mt-2 leading-relaxed">${x.sub}</p>
               <p class="text-xs text-kk-orange mt-5 font-bold">进入分站 →</p>
@@ -8169,10 +8177,10 @@
                 const showDel = bk && canDeleteFinFlowBooking(bk);
                 const showEdit = bk && canEditFinFlowBooking(bk);
                 const editBtn = showEdit
-                  ? `<button type="button" class="fin-flow-edit inline-flex shrink-0 items-center justify-center rounded-lg border-2 border-kk-forest/25 bg-kk-lime/40 px-2 py-1 text-[11px] font-bold text-kk-forest hover:bg-kk-lime active:scale-[0.98]" data-booking-id="${String(r.bid).replace(/"/g, '')}">修改</button>`
+                  ? `<button type="button" class="fin-flow-edit inline-flex shrink-0 items-center justify-center rounded-lg border-2 border-kk-forest bg-white px-2 py-1 text-[11px] font-bold text-kk-forest hover:bg-kk-lime/10 active:scale-[0.98]" data-booking-id="${String(r.bid).replace(/"/g, '')}">修改</button>`
                   : '';
                 const delBtn = showDel
-                  ? `<button type="button" class="fin-flow-del inline-flex shrink-0 items-center justify-center rounded-lg border border-kk-orange/25 bg-kk-orange/10 px-2 py-1 text-[11px] font-semibold text-kk-muted hover:bg-kk-orange/15 active:scale-[0.98]" data-booking-id="${String(r.bid).replace(/"/g, '')}">删除</button>`
+                  ? `<button type="button" class="fin-flow-del inline-flex shrink-0 items-center justify-center rounded-lg border-2 border-kk-orange/50 bg-white px-2 py-1 text-[11px] font-semibold text-kk-orange hover:bg-kk-orange/5 active:scale-[0.98]" data-booking-id="${String(r.bid).replace(/"/g, '')}">删除</button>`
                   : '';
                 const actions =
                   editBtn || delBtn
@@ -8512,10 +8520,10 @@
                   const showDel = bk && canDeleteFinFlowBooking(bk);
                   const showEdit = bk && canEditFinFlowBooking(bk);
                   const editBtn = showEdit
-                    ? `<button type="button" class="fin-flow-edit inline-flex shrink-0 items-center justify-center rounded-full border-2 border-kk-forest/25 bg-kk-lime/50 px-2.5 py-1 text-[11px] font-bold text-kk-forest hover:bg-kk-lime active:scale-[0.98] transition-all duration-300" data-booking-id="${String(r.bid).replace(/"/g, '')}">修改</button>`
+                    ? `<button type="button" class="fin-flow-edit inline-flex shrink-0 items-center justify-center rounded-full border-2 border-kk-forest bg-white px-2.5 py-1 text-[11px] font-bold text-kk-forest hover:bg-kk-lime/10 active:scale-[0.98] transition-all duration-300" data-booking-id="${String(r.bid).replace(/"/g, '')}">修改</button>`
                     : '';
                   const delBtn = showDel
-                    ? `<button type="button" class="fin-flow-del inline-flex shrink-0 items-center justify-center rounded-[20px] border border-kk-coral/35 bg-kk-coral/12 px-2.5 py-1 text-[11px] font-semibold text-kk-ink/90 hover:bg-kk-coral/18 active:scale-[0.98] transition-all duration-300" data-booking-id="${String(r.bid).replace(/"/g, '')}">删除</button>`
+                    ? `<button type="button" class="fin-flow-del inline-flex shrink-0 items-center justify-center rounded-[20px] border-2 border-kk-orange/50 bg-white px-2.5 py-1 text-[11px] font-semibold text-kk-orange hover:bg-kk-orange/5 active:scale-[0.98] transition-all duration-300" data-booking-id="${String(r.bid).replace(/"/g, '')}">删除</button>`
                     : '';
                   const actions =
                     editBtn || delBtn
