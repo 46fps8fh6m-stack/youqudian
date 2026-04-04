@@ -1090,8 +1090,20 @@
             <div id="modalTransferDayStrip" class="flex flex-wrap gap-1"></div>
           </div>
           <div id="modalBookingSelectWrap" class="hidden space-y-1">
-            <label class="block text-xs text-kk-muted">多条档期并存时，请选择要完结的那一条</label>
+            <label class="block text-xs text-kk-muted">多条档期并存时，请选择要编辑或完结的那一条；也可选「新档期」新增下一段。</label>
             <select id="modalBookingSelect" class="w-full rounded-xl border border-kk-line px-3 py-2.5 text-sm bg-white"></select>
+          </div>
+          <div id="modalNewBookingRow" class="hidden space-y-1">
+            <button
+              type="button"
+              id="btnModalNewBooking"
+              class="w-full rounded-xl border-2 border-kk-lime/45 bg-kk-lime/12 py-2.5 text-sm font-semibold text-kk-forest hover:bg-kk-lime/22 transition text-left px-3"
+            >
+              ＋ 新增另一条档期（下一段租期）
+            </button>
+            <p id="modalNewBookingHint" class="hidden text-[11px] text-kk-orange font-medium leading-snug">
+              正在录入新档期：日期须与已有档期不重叠；保存后可与当前出租/预约单并存。
+            </p>
           </div>
           <div>
             <label class="block text-xs text-kk-muted mb-1">租金（元）</label>
@@ -2754,6 +2766,51 @@
       await maybeSessionPullFromCloudOnce();
     }
 
+    let kkcamCloudBgPullTimer = null;
+    let kkcamCloudBgVisibilityHandler = null;
+
+    function kkcamDeferCloudPullForActiveEditing() {
+      if (modalCameraId != null) return true;
+      const cr = document.getElementById('checklistFlowRoot');
+      if (cr && !cr.classList.contains('hidden')) return true;
+      const finEdit = document.getElementById('finFlowEditModalRoot');
+      if (finEdit && !finEdit.classList.contains('hidden')) return true;
+      return false;
+    }
+
+    async function kkcamPullCloudSilentRefresh() {
+      try {
+        if (!kkcamIsAutopushEnabled()) return;
+        if (kkcamDeferCloudPullForActiveEditing()) return;
+        await ensureAutoSyncUserIfEmpty();
+        if (!getKkcamSyncUser()) return;
+        const ok = await pullFullStateFromCloudInner(false);
+        if (ok) {
+          render();
+          updateCalc();
+        }
+      } catch (e) {}
+    }
+
+    /** 自动同步开启时：切回前台与每分钟静默拉取，换机录入后另一台无需手动刷新即可跟上（仍须同账号/同同步槽位）。 */
+    function initKkcamCloudBackgroundPull() {
+      if (kkcamCloudBgPullTimer) {
+        clearInterval(kkcamCloudBgPullTimer);
+        kkcamCloudBgPullTimer = null;
+      }
+      if (kkcamCloudBgVisibilityHandler) {
+        document.removeEventListener('visibilitychange', kkcamCloudBgVisibilityHandler);
+        kkcamCloudBgVisibilityHandler = null;
+      }
+      if (!kkcamIsAutopushEnabled()) return;
+      kkcamCloudBgVisibilityHandler = () => {
+        if (document.visibilityState !== 'visible') return;
+        setTimeout(() => void kkcamPullCloudSilentRefresh(), 400);
+      };
+      document.addEventListener('visibilitychange', kkcamCloudBgVisibilityHandler);
+      kkcamCloudBgPullTimer = setInterval(() => void kkcamPullCloudSilentRefresh(), 60000);
+    }
+
     function downloadKkcamFullExport() {
       const payload = buildFullSyncPayloadFromMemory();
       const doc = {
@@ -2866,6 +2923,7 @@
             if (ap.checked) localStorage.removeItem(KKCAM_SYNC_AUTOPUSH_KEY);
             else localStorage.setItem(KKCAM_SYNC_AUTOPUSH_KEY, '0');
           } catch (e) {}
+          initKkcamCloudBackgroundPull();
         });
       }
       document.getElementById('kkcamSyncPull')?.addEventListener('click', () => pullBookingsFromCloud(true));
@@ -2878,6 +2936,7 @@
         if (f) void importKkcamFullFromFile(f);
       });
       document.getElementById('kkcamSyncDiag')?.addEventListener('click', () => void runKkcamSyncDiagnostics());
+      initKkcamCloudBackgroundPull();
     }
 
     function loadState() {
@@ -6205,6 +6264,7 @@
       setModalShipBannerFromBooking(b);
       applyInventoryToModal(b);
       applyBookingFinancialLockState(b);
+      updateModalNewBookingChrome();
     }
 
     function setModalShipBannerFromBooking(b) {
@@ -6221,6 +6281,58 @@
         shipBan.classList.add('hidden');
         shipBan.innerHTML = '';
       }
+    }
+
+    function updateModalNewBookingChrome() {
+      const row = document.getElementById('modalNewBookingRow');
+      const hint = document.getElementById('modalNewBookingHint');
+      if (!row || !hint || !modalCameraId) return;
+      const n = activeBookingsForCamera(modalCameraId).length;
+      row.classList.toggle('hidden', n === 0);
+      const isNewMode = modalTargetBookingId == null && n >= 1;
+      hint.classList.toggle('hidden', !isNewMode);
+    }
+
+    function beginModalNewBooking() {
+      const c = cameras.find((x) => x.id === modalCameraId);
+      if (!c) return;
+      const actives = activeBookingsForCamera(c.id);
+      if (actives.length === 0) return;
+      modalTargetBookingId = null;
+      const sortedByEnd = [...actives].sort((a, b) => a.endDate.localeCompare(b.endDate));
+      let s = addDaysToYmd(sortedByEnd[sortedByEnd.length - 1].endDate, 1);
+      if (viewerSeesInboundTransferPreStock(c)) {
+        const fb = cameraFirstBookableYmdAfterTransfer(c);
+        if (fb && s < fb) s = fb;
+      }
+      const today = todayStr();
+      if (s < today) s = today;
+      for (let guard = 0; guard < 370; guard++) {
+        if (!hasConflictInRange(c.id, s, s, null)) break;
+        s = addDaysToYmd(s, 1);
+      }
+      modalStart.value = s;
+      modalEnd.value = s;
+      modalRent.value = 110;
+      modalTenant.value = '';
+      modalDestination.value = '';
+      const ms0 = document.getElementById('modalShippingCost');
+      const mo0 = document.getElementById('modalOtherExtra');
+      const mn0 = document.getElementById('modalExpenseNote');
+      if (ms0) ms0.value = '0';
+      if (mo0) mo0.value = '0';
+      if (mn0) mn0.value = '';
+      modalStatusPick = 'pending';
+      highlightModalStatus();
+      setModalShipBannerFromBooking(null);
+      applyInventoryToModal(null);
+      applyBookingFinancialLockState(null);
+      modalErr.classList.add('hidden');
+      if (actives.length > 1) {
+        const sel = document.getElementById('modalBookingSelect');
+        if (sel) sel.value = '__new__';
+      }
+      updateModalNewBookingChrome();
     }
 
     function openModal(cameraId) {
@@ -6272,17 +6384,24 @@
       const sel = document.getElementById('modalBookingSelect');
       if (actives.length > 1) {
         wrap.classList.remove('hidden');
-        sel.innerHTML = actives
-          .sort((a, b) => a.startDate.localeCompare(b.startDate))
-          .map((b) => {
-            const name = (b.tenantName || '未命名').replace(/</g, '');
-            const dest = (b.destination || '').trim();
-            const destBit = dest ? ` · ${dest.replace(/</g, '')}` : '';
-            return `<option value="${b.id}">${b.startDate} → ${b.endDate} · ${name} · ¥${Number(b.rent) || 0}${destBit}</option>`;
-          })
-          .join('');
+        const newOpt = `<option value="__new__">＋ 新档期（不与已有重叠）</option>`;
+        sel.innerHTML =
+          newOpt +
+          actives
+            .sort((a, b) => a.startDate.localeCompare(b.startDate))
+            .map((b) => {
+              const name = (b.tenantName || '未命名').replace(/</g, '');
+              const dest = (b.destination || '').trim();
+              const destBit = dest ? ` · ${dest.replace(/</g, '')}` : '';
+              return `<option value="${b.id}">${b.startDate} → ${b.endDate} · ${name} · ¥${Number(b.rent) || 0}${destBit}</option>`;
+            })
+            .join('');
         sel.value = primary.id;
         sel.onchange = () => {
+          if (sel.value === '__new__') {
+            beginModalNewBooking();
+            return;
+          }
           const b = bookings.find((x) => x.id === sel.value);
           if (b) applyBookingToModal(b);
           else applyBookingFinancialLockState(null);
@@ -6310,6 +6429,7 @@
       modalRoot.classList.remove('hidden');
       modalRoot.setAttribute('aria-hidden', 'false');
       highlightModalStatus();
+      updateModalNewBookingChrome();
     }
 
     function highlightModalStatus() {
@@ -6371,7 +6491,15 @@
     function setModalStatus(s) {
       modalStatusPick = s;
       const c = cameras.find((x) => x.id === modalCameraId);
-      if (c && !cameraIsInTransfer(c)) c.status = s;
+      if (c && !cameraIsInTransfer(c)) {
+        const actives = activeBookingsForCamera(c.id);
+        const anyShip = actives.some((b) => b.shipSnapshot);
+        if (s === 'pending' && anyShip) {
+          /* 已有出库在租：签单/新档期仅表示在录下一段，机身保持 renting */
+        } else {
+          c.status = s;
+        }
+      }
       highlightModalStatus();
       saveState();
     }
@@ -7530,7 +7658,7 @@
       if (cameraIsInTransfer(c)) {
         c.status = 'in_transit';
       } else {
-        c.status = modalStatusPick;
+        syncCameraStatusFromBookings(c.id);
       }
       c.dispatch = modalDispatch.checked;
       if (c.idleCrossReturnHighlight) delete c.idleCrossReturnHighlight;
@@ -7688,6 +7816,7 @@
     document.getElementById('shipVoucherBackdrop')?.addEventListener('click', closeShipVoucherModal);
 
     document.getElementById('btnSaveBooking').addEventListener('click', saveBookingFromModal);
+    document.getElementById('btnModalNewBooking')?.addEventListener('click', () => beginModalNewBooking());
     modalRent.addEventListener('input', refreshModalPeerSplitPreview);
     document.getElementById('modalShippingCost')?.addEventListener('input', refreshModalPeerSplitPreview);
     document.getElementById('modalOtherExtra')?.addEventListener('input', refreshModalPeerSplitPreview);
