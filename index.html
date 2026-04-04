@@ -73,16 +73,20 @@
       color: #0a0a0a;
       overflow: hidden;
     }
-    .kk-login-grid-bg {
+    /* 交互点阵背景（Canvas · 与登录内容分层） */
+    .kk-login-dotgrid-wrap {
       position: absolute;
-      inset: -12%;
+      inset: 0;
       z-index: 0;
-      background-image: radial-gradient(circle, #c4c4cc 1.1px, transparent 1.1px);
-      background-size: 22px 22px;
-      opacity: 0.5;
+      overflow: hidden;
       pointer-events: none;
-      transform: translate3d(0, 0, 0);
-      transition: transform 0.15s ease-out;
+    }
+    .kk-login-dotgrid-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
     }
     .kk-login-hud {
       position: absolute;
@@ -220,13 +224,16 @@
     }
     .kk-login-card {
       position: relative;
+      z-index: 20;
       width: 100%;
       max-width: 22rem;
       padding: 2.25rem 1.75rem 1.75rem;
-      background: #fff;
+      background: rgba(255, 255, 255, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       color: #0a0a0a;
-      border: 1px solid #e4e4e7;
-      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.08), 0 12px 24px -8px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(228, 228, 231, 0.95);
+      box-shadow: 0 24px 48px -12px rgba(118, 70, 255, 0.07), 0 12px 24px -8px rgba(0, 0, 0, 0.05);
       animation: kk-login-card-in 0.7s ease-out 0.08s both;
     }
     .kk-login-bracket {
@@ -394,7 +401,9 @@
 <body id="appBody" class="min-h-screen bg-white text-kk-ink font-sans pb-28 transition-[padding-bottom] duration-200">
   <!-- 口令登录（CamSaaS 风 · 超级 / 各站合伙） -->
   <div id="loginRoot" class="kk-login-root fixed inset-0 z-[100]">
-    <div class="kk-login-grid-bg" aria-hidden="true"></div>
+    <div class="kk-login-dotgrid-wrap" aria-hidden="true">
+      <canvas id="loginDotGridCanvas" class="kk-login-dotgrid-canvas" width="300" height="300"></canvas>
+    </div>
     <div class="kk-login-hud kk-login-hud-tl">+ SYS.READY</div>
     <div class="kk-login-hud kk-login-hud-tr" id="loginHudClock">0000-00-00 00:00:00.000 +</div>
     <div class="kk-login-hud kk-login-hud-bl" id="loginHudCoords">+ COORDS: 00.00.00</div>
@@ -9125,7 +9134,273 @@
     let loginShellMouseAbort = null;
     let loginGlobeResizeTimer = null;
 
+    let loginDotGridRafId = null;
+    let loginDotGridResizeObserver = null;
+    let loginDotGridLastTs = 0;
+    let loginDotGridImpulseLast = { t: 0, x: 0, y: 0, primed: false };
+    /** @type {{ cx: number, cy: number, xOffset: number, yOffset: number, vx: number, vy: number, _busy: boolean }[]} */
+    let loginDotGridDots = [];
+    const loginDotGridPointer = {
+      x: 0,
+      y: 0,
+      vx: 0,
+      vy: 0,
+      speed: 0,
+    };
+
+    /** ReactBits DotGrid 参数 → 原生 Canvas；配色对齐 B 端 #7646FF（无 GSAP） */
+    const LOGIN_DOT_GRID = {
+      dotSize: 5,
+      gap: 15,
+      baseColor: '#D8CFF5',
+      activeColor: '#7646FF',
+      proximity: 120,
+      speedTrigger: 100,
+      shockRadius: 250,
+      shockStrength: 5,
+      maxSpeed: 5000,
+      resistance: 750,
+      returnDuration: 1.5,
+    };
+
+    function loginDotGridHexToRgb(hex) {
+      const m = String(hex).match(/^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i);
+      if (!m) return { r: 0, g: 0, b: 0 };
+      return { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) };
+    }
+
+    function loginDotGridThrottle(fn, limit) {
+      let last = 0;
+      return function (...args) {
+        const now = performance.now();
+        if (now - last >= limit) {
+          last = now;
+          fn.apply(this, args);
+        }
+      };
+    }
+
+    function destroyLoginDotGrid() {
+      if (loginDotGridRafId != null) {
+        cancelAnimationFrame(loginDotGridRafId);
+        loginDotGridRafId = null;
+      }
+      if (loginDotGridResizeObserver) {
+        loginDotGridResizeObserver.disconnect();
+        loginDotGridResizeObserver = null;
+      }
+      loginDotGridDots = [];
+      loginDotGridLastTs = 0;
+      loginDotGridImpulseLast = { t: 0, x: 0, y: 0, primed: false };
+    }
+
+    function buildLoginDotGrid() {
+      const wrap = document.querySelector('#loginRoot .kk-login-dotgrid-wrap');
+      const canvas = document.getElementById('loginDotGridCanvas');
+      if (!wrap || !canvas) return;
+      const { width, height } = wrap.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const W = Math.max(1, width | 0);
+      const H = Math.max(1, height | 0);
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = `${W}px`;
+      canvas.style.height = `${H}px`;
+      const ctx = canvas.getContext('2d');
+      if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      const { dotSize, gap } = LOGIN_DOT_GRID;
+      const cell = dotSize + gap;
+      const cols = Math.floor((W + gap) / cell);
+      const rows = Math.floor((H + gap) / cell);
+      const gridW = cell * cols - gap;
+      const gridH = cell * rows - gap;
+      const startX = (W - gridW) / 2 + dotSize / 2;
+      const startY = (H - gridH) / 2 + dotSize / 2;
+
+      loginDotGridDots = [];
+      for (let y = 0; y < rows; y++) {
+        for (let x = 0; x < cols; x++) {
+          loginDotGridDots.push({
+            cx: startX + x * cell,
+            cy: startY + y * cell,
+            xOffset: 0,
+            yOffset: 0,
+            vx: 0,
+            vy: 0,
+            _busy: false,
+          });
+        }
+      }
+    }
+
+    function loginDotGridStepPhysics(dtSec) {
+      const { returnDuration, resistance } = LOGIN_DOT_GRID;
+      const omega = (2 * Math.PI) / Math.max(0.4, returnDuration);
+      const zeta = 0.72;
+      const k = omega * omega;
+      const c = 2 * zeta * omega;
+      const drag = Math.exp((-resistance / 2200) * dtSec * 60 * 0.025);
+
+      for (const dot of loginDotGridDots) {
+        const ax = -k * dot.xOffset - c * dot.vx;
+        const ay = -k * dot.yOffset - c * dot.vy;
+        dot.vx = (dot.vx + ax * dtSec) * drag;
+        dot.vy = (dot.vy + ay * dtSec) * drag;
+        dot.xOffset += dot.vx * dtSec;
+        dot.yOffset += dot.vy * dtSec;
+
+        if (Math.hypot(dot.xOffset, dot.yOffset) < 0.06 && Math.hypot(dot.vx, dot.vy) < 2.2) {
+          dot.xOffset = dot.yOffset = dot.vx = dot.vy = 0;
+          dot._busy = false;
+        }
+      }
+    }
+
+    function paintLoginDotGridFrame() {
+      const canvas = document.getElementById('loginDotGridCanvas');
+      if (!canvas || loginDotGridDots.length === 0) return;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const W = canvas.width / dpr;
+      const H = canvas.height / dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, W, H);
+
+      const { dotSize, proximity, baseColor, activeColor } = LOGIN_DOT_GRID;
+      const baseRgb = loginDotGridHexToRgb(baseColor);
+      const activeRgb = loginDotGridHexToRgb(activeColor);
+      const proxSq = proximity * proximity;
+      const { x: px, y: py } = loginDotGridPointer;
+      const r = dotSize / 2;
+
+      for (const dot of loginDotGridDots) {
+        const ox = dot.cx + dot.xOffset;
+        const oy = dot.cy + dot.yOffset;
+        const dx = dot.cx - px;
+        const dy = dot.cy - py;
+        const dsq = dx * dx + dy * dy;
+        let style = baseColor;
+        if (dsq <= proxSq) {
+          const dist = Math.sqrt(dsq);
+          const t = 1 - dist / proximity;
+          const rr = Math.round(baseRgb.r + (activeRgb.r - baseRgb.r) * t);
+          const gg = Math.round(baseRgb.g + (activeRgb.g - baseRgb.g) * t);
+          const bb = Math.round(baseRgb.b + (activeRgb.b - baseRgb.b) * t);
+          style = `rgb(${rr},${gg},${bb})`;
+        }
+        ctx.beginPath();
+        ctx.arc(ox, oy, r, 0, Math.PI * 2);
+        ctx.fillStyle = style;
+        ctx.fill();
+      }
+    }
+
+    function loginDotGridLoop(ts) {
+      const canvas = document.getElementById('loginDotGridCanvas');
+      const root = document.getElementById('loginRoot');
+      if (!canvas || !root || root.classList.contains('hidden')) return;
+
+      const dtSec = loginDotGridLastTs ? Math.min(0.055, (ts - loginDotGridLastTs) / 1000) : 0.016;
+      loginDotGridLastTs = ts;
+      if (loginDotGridDots.length) loginDotGridStepPhysics(dtSec);
+      paintLoginDotGridFrame();
+      loginDotGridRafId = requestAnimationFrame(loginDotGridLoop);
+    }
+
+    function loginDotGridApplyMoveImpulse(e) {
+      const canvas = document.getElementById('loginDotGridCanvas');
+      if (!canvas || loginDotGridDots.length === 0) return;
+      const now = performance.now();
+      const il = loginDotGridImpulseLast;
+      if (!il.primed) {
+        il.primed = true;
+        il.t = now;
+        il.x = e.clientX;
+        il.y = e.clientY;
+        return;
+      }
+      const dt = Math.max(4, now - il.t);
+      let vx = ((e.clientX - il.x) / dt) * 1000;
+      let vy = ((e.clientY - il.y) / dt) * 1000;
+      let speed = Math.hypot(vx, vy);
+      const { maxSpeed, speedTrigger, proximity, shockStrength } = LOGIN_DOT_GRID;
+      if (speed > maxSpeed) {
+        const sc = maxSpeed / speed;
+        vx *= sc;
+        vy *= sc;
+        speed = maxSpeed;
+      }
+      il.t = now;
+      il.x = e.clientX;
+      il.y = e.clientY;
+      loginDotGridPointer.vx = vx;
+      loginDotGridPointer.vy = vy;
+      loginDotGridPointer.speed = speed;
+
+      if (speed <= speedTrigger) return;
+
+      const rect = canvas.getBoundingClientRect();
+      const prx = e.clientX - rect.left;
+      const pry = e.clientY - rect.top;
+
+      for (const dot of loginDotGridDots) {
+        const dist = Math.hypot(dot.cx - prx, dot.cy - pry);
+        if (dist < proximity && !dot._busy) {
+          dot._busy = true;
+          const pushX = dot.cx - prx + vx * 0.005;
+          const pushY = dot.cy - pry + vy * 0.005;
+          const len = Math.hypot(pushX, pushY) || 1;
+          const imp = 0.038;
+          dot.vx += (pushX / len) * Math.min(speed, 900) * imp;
+          dot.vy += (pushY / len) * Math.min(speed, 900) * imp;
+        }
+      }
+    }
+
+    const loginDotGridImpulseThrottled = loginDotGridThrottle(loginDotGridApplyMoveImpulse, 50);
+
+    function loginDotGridOnClickShock(e) {
+      if (e.target.closest('.kk-login-card')) return;
+      const canvas = document.getElementById('loginDotGridCanvas');
+      if (!canvas || loginDotGridDots.length === 0) return;
+      const rect = canvas.getBoundingClientRect();
+      const cx = e.clientX - rect.left;
+      const cy = e.clientY - rect.top;
+      const { shockRadius, shockStrength } = LOGIN_DOT_GRID;
+      for (const dot of loginDotGridDots) {
+        const dist = Math.hypot(dot.cx - cx, dot.cy - cy);
+        if (dist < shockRadius && !dot._busy) {
+          dot._busy = true;
+          const falloff = Math.max(0, 1 - dist / shockRadius);
+          const pushX = (dot.cx - cx) * shockStrength * falloff;
+          const pushY = (dot.cy - cy) * shockStrength * falloff;
+          dot.vx += pushX * 0.011;
+          dot.vy += pushY * 0.011;
+        }
+      }
+    }
+
+    function startLoginDotGrid(signal) {
+      destroyLoginDotGrid();
+      buildLoginDotGrid();
+      const wrap = document.querySelector('#loginRoot .kk-login-dotgrid-wrap');
+      const root = document.getElementById('loginRoot');
+      if ('ResizeObserver' in window && wrap) {
+        loginDotGridResizeObserver = new ResizeObserver(() => buildLoginDotGrid());
+        loginDotGridResizeObserver.observe(wrap);
+      } else {
+        window.addEventListener('resize', buildLoginDotGrid, { signal });
+      }
+      if (root) {
+        root.addEventListener('click', loginDotGridOnClickShock, { signal });
+      }
+      loginDotGridRafId = requestAnimationFrame(loginDotGridLoop);
+    }
+
     function destroyLoginShell() {
+      destroyLoginDotGrid();
       if (loginGlobeResizeTimer != null) {
         clearTimeout(loginGlobeResizeTimer);
         loginGlobeResizeTimer = null;
@@ -9224,7 +9499,9 @@
       loginShellClockTimer = setInterval(tickClock, 48);
 
       loginShellMouseAbort = new AbortController();
-      const gridBg = root.querySelector('.kk-login-grid-bg');
+      const sig = loginShellMouseAbort.signal;
+      startLoginDotGrid(sig);
+      const dotCanvas = document.getElementById('loginDotGridCanvas');
       root.addEventListener(
         'mousemove',
         (e) => {
@@ -9236,13 +9513,14 @@
             const zv = (((e.clientX + e.clientY) % 360) * 99 / 360) | 0;
             coordEl.textContent = `+ COORDS: ${pad2(xv)}.${pad2(yv)}.${pad2(zv)}`;
           }
-          if (gridBg) {
-            const px = ((e.clientX / iw - 0.5) * -8).toFixed(2);
-            const py = ((e.clientY / ih - 0.5) * -8).toFixed(2);
-            gridBg.style.transform = `translate3d(${px}px, ${py}px, 0)`;
+          if (dotCanvas) {
+            const rect = dotCanvas.getBoundingClientRect();
+            loginDotGridPointer.x = e.clientX - rect.left;
+            loginDotGridPointer.y = e.clientY - rect.top;
+            loginDotGridImpulseThrottled(e);
           }
         },
-        { signal: loginShellMouseAbort.signal }
+        { signal: sig }
       );
 
       const scheduleGlobeDraw = () => {
