@@ -15,6 +15,12 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/png" href="app-icon.png" />
   <link rel="apple-touch-icon" href="app-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -38,18 +44,347 @@
       50% { opacity: 0.65; box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
     }
     .kk-today-dot { animation: kk-today-pulse 1.2s ease-in-out infinite; }
+
+    /* —— CamSaaS 风登录壳（仅 #loginRoot 内） —— */
+    #loginRoot.kk-login-root {
+      font-family: 'DM Sans', -apple-system, system-ui, sans-serif;
+      background: #fafafa;
+      color: #0a0a0a;
+      overflow: hidden;
+    }
+    .kk-login-grid-bg {
+      position: absolute;
+      inset: -12%;
+      background-image: radial-gradient(circle, #c4c4cc 1.1px, transparent 1.1px);
+      background-size: 22px 22px;
+      opacity: 0.45;
+      pointer-events: none;
+      transform: translate3d(0, 0, 0);
+      transition: transform 0.15s ease-out;
+    }
+    .kk-login-hud {
+      position: absolute;
+      z-index: 30;
+      font-family: 'JetBrains Mono', ui-monospace, monospace;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      color: #71717a;
+      user-select: none;
+      pointer-events: none;
+    }
+    .kk-login-hud-tl {
+      top: 1.15rem;
+      left: 1.15rem;
+      animation: kk-login-sys-blink 2.4s ease-in-out infinite;
+    }
+    .kk-login-hud-tr {
+      top: 1.15rem;
+      right: 1.15rem;
+      text-align: right;
+    }
+    .kk-login-hud-bl {
+      bottom: 1.15rem;
+      left: 1.15rem;
+    }
+    .kk-login-hud-br {
+      bottom: 1.15rem;
+      right: 1.15rem;
+      text-align: right;
+    }
+    @keyframes kk-login-sys-blink {
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.45;
+      }
+    }
+    @keyframes kk-login-card-in {
+      from {
+        opacity: 0;
+        transform: translateY(14px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes kk-login-brand-in {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .kk-login-main {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 56rem;
+      margin: 0 auto;
+      padding: 4.5rem 1.5rem 3rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2.5rem;
+      min-height: 100%;
+      justify-content: center;
+    }
+    @media (min-width: 900px) {
+      .kk-login-main {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 3rem;
+        padding: 2rem 2.5rem;
+      }
+    }
+    .kk-login-brand {
+      position: relative;
+      text-align: center;
+      animation: kk-login-brand-in 0.75s ease-out both;
+      flex: 0 1 auto;
+    }
+    @media (min-width: 900px) {
+      .kk-login-brand {
+        text-align: left;
+        flex: 1;
+        max-width: 26rem;
+      }
+    }
+    .kk-login-canvas-wrap {
+      position: relative;
+      width: min(100%, 22rem);
+      height: min(52vw, 14rem);
+      margin: 0 auto 0.5rem;
+      pointer-events: none;
+    }
+    @media (min-width: 900px) {
+      .kk-login-canvas-wrap {
+        width: 100%;
+        height: 16rem;
+        margin: 0 0 0.25rem;
+      }
+    }
+    #loginParticleCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .kk-login-logo {
+      font-size: clamp(2rem, 6vw, 3rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      color: #09090b;
+    }
+    .kk-login-logo-sub {
+      margin-top: 0.2rem;
+      font-size: clamp(1.1rem, 2.8vw, 1.35rem);
+      font-weight: 600;
+      color: #27272a;
+      letter-spacing: 0.02em;
+    }
+    .kk-login-tagline {
+      margin-top: 0.75rem;
+      font-size: 0.8rem;
+      font-style: italic;
+      color: #a1a1aa;
+    }
+    .kk-login-card {
+      position: relative;
+      width: 100%;
+      max-width: 22rem;
+      padding: 2.25rem 1.75rem 1.75rem;
+      background: #fff;
+      border: 1px solid #e4e4e7;
+      box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.08), 0 12px 24px -8px rgba(0, 0, 0, 0.04);
+      animation: kk-login-card-in 0.7s ease-out 0.08s both;
+    }
+    .kk-login-bracket {
+      position: absolute;
+      width: 1.25rem;
+      height: 1.25rem;
+      pointer-events: none;
+      border-color: #18181b;
+      opacity: 0.85;
+    }
+    .kk-login-bracket.tl {
+      top: 0.6rem;
+      left: 0.6rem;
+      border-top: 2px solid;
+      border-left: 2px solid;
+    }
+    .kk-login-bracket.br {
+      bottom: 0.6rem;
+      right: 0.6rem;
+      border-bottom: 2px solid;
+      border-right: 2px solid;
+    }
+    .kk-login-card-title {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #a1a1aa;
+      margin-bottom: 1.5rem;
+    }
+    .kk-login-field {
+      position: relative;
+      margin-bottom: 1.75rem;
+    }
+    .kk-login-field label {
+      display: block;
+      font-size: 0.75rem;
+      color: #71717a;
+      margin-bottom: 0.35rem;
+      letter-spacing: 0.02em;
+    }
+    .kk-login-field input[type='password'],
+    .kk-login-field input[type='text'] {
+      width: 100%;
+      padding: 0.45rem 0 0.5rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #18181b;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      outline: none;
+    }
+    .kk-login-field .kk-login-line {
+      display: block;
+      height: 1px;
+      background: #d4d4d8;
+      transform-origin: left center;
+      transition: transform 0.35s ease, background-color 0.25s ease;
+    }
+    .kk-login-field:focus-within .kk-login-line {
+      background: #18181b;
+      height: 2px;
+    }
+    #loginErr.kk-login-err {
+      font-size: 0.72rem;
+      color: #dc2626;
+      margin: -1rem 0 1rem;
+      min-height: 1rem;
+    }
+    #loginErr.kk-login-err:empty,
+    #loginErr.kk-login-err.hidden {
+      margin-bottom: 0.5rem;
+    }
+    .kk-login-enter {
+      width: 100%;
+      padding: 0.95rem 1rem;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.35em;
+      text-indent: 0.35em;
+      text-transform: uppercase;
+      color: #fff;
+      background: #09090b;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .kk-login-enter:hover {
+      background: #27272a;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+      transform: translateY(-1px);
+    }
+    .kk-login-enter:active {
+      transform: translateY(0);
+    }
+    .kk-login-links {
+      text-align: center;
+      margin-top: 1.1rem;
+      font-size: 0.7rem;
+      color: #a1a1aa;
+      line-height: 1.5;
+    }
+    .kk-login-footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 0.5rem;
+      margin-top: 1.35rem;
+      padding-top: 1rem;
+      border-top: 1px solid #f4f4f5;
+    }
+    .kk-login-footer-row label {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.7rem;
+      color: #71717a;
+      cursor: pointer;
+      user-select: none;
+    }
+    .kk-login-footer-row input[type='checkbox'] {
+      width: 0.85rem;
+      height: 0.85rem;
+      accent-color: #18181b;
+    }
+    .kk-login-hint {
+      margin-top: 1rem;
+      font-size: 0.62rem;
+      line-height: 1.45;
+      color: #a1a1aa;
+    }
   </style>
 </head>
 <body id="appBody" class="min-h-screen bg-stone-100 text-zinc-900 font-sans pb-28 transition-[padding-bottom] duration-200">
-  <!-- 口令登录（三层：超级 / 各站合伙） -->
-  <div id="loginRoot" class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-zinc-900/50 backdrop-blur-sm">
-    <div class="w-full max-w-md rounded-3xl bg-white border border-zinc-200 shadow-float p-8">
-      <h2 class="text-xl font-semibold text-zinc-900">有趣点相机屋 · 身份验证</h2>
-      <p class="text-sm text-zinc-500 mt-2">请输入访问密码（字母+数字，各站独立）。超级密码可管理全部门店与财务；合伙密码仅本站档期与预估。</p>
-      <input type="password" id="loginPass" autocomplete="current-password" placeholder="输入密码" class="mt-6 w-full rounded-2xl border border-zinc-200 px-4 py-3 text-sm" />
-      <p id="loginErr" class="hidden mt-2 text-xs text-red-600"></p>
-      <button type="button" id="loginSubmit" class="mt-4 w-full rounded-2xl bg-zinc-900 text-white py-3 text-sm font-semibold hover:bg-zinc-800">进入系统</button>
-      <p class="text-[11px] text-zinc-400 mt-4 leading-relaxed">密码经 SHA-256 校验，请在源码中修改 <code class="text-zinc-600">ACCESS_SHA256</code> 与上方注释中的明文对应关系。</p>
+  <!-- 口令登录（CamSaaS 风 · 超级 / 各站合伙） -->
+  <div id="loginRoot" class="kk-login-root fixed inset-0 z-[100]">
+    <div class="kk-login-grid-bg" aria-hidden="true"></div>
+    <div class="kk-login-hud kk-login-hud-tl">+ SYS.READY</div>
+    <div class="kk-login-hud kk-login-hud-tr" id="loginHudClock">0000-00-00 00:00:00.000 +</div>
+    <div class="kk-login-hud kk-login-hud-bl" id="loginHudCoords">+ COORDS: 00.00.00</div>
+    <div class="kk-login-hud kk-login-hud-br">V.20260330 +</div>
+
+    <div class="kk-login-main">
+      <div class="kk-login-brand">
+        <div class="kk-login-canvas-wrap" aria-hidden="true">
+          <canvas id="loginParticleCanvas" width="400" height="280"></canvas>
+        </div>
+        <h1 class="kk-login-logo">有趣点</h1>
+        <p class="kk-login-logo-sub">相机屋 · 档期与资管</p>
+        <p class="kk-login-tagline">档期 · 机身 · 云同步</p>
+      </div>
+
+      <div class="kk-login-card">
+        <span class="kk-login-bracket tl" aria-hidden="true"></span>
+        <span class="kk-login-bracket br" aria-hidden="true"></span>
+        <p class="kk-login-card-title">Secure Access</p>
+
+        <div class="kk-login-field">
+          <label for="loginPass">访问密码</label>
+          <input type="password" id="loginPass" autocomplete="current-password" placeholder="" />
+          <span class="kk-login-line" aria-hidden="true"></span>
+        </div>
+
+        <p id="loginErr" class="kk-login-err hidden" role="alert"></p>
+
+        <button type="button" id="loginSubmit" class="kk-login-enter">Enter</button>
+
+        <p class="kk-login-links">口令由主理人分配 · 暂无开放注册 / 找回</p>
+
+        <div class="kk-login-footer-row">
+          <label>
+            <input type="checkbox" id="loginRememberMe" />
+            记住我（本机关闭浏览器后仍可保持登录）
+          </label>
+        </div>
+
+        <p class="kk-login-hint">
+          超级口令可管理全部门店与财务；各城合伙口令仅本站档期与预估。校验方式见源码中 <code class="text-zinc-500">ACCESS_SHA256</code>。
+        </p>
+      </div>
     </div>
   </div>
 
@@ -2896,15 +3231,22 @@
     }
 
     function persistAuth() {
-      sessionStorage.setItem(
-        'kkcam_auth',
-        JSON.stringify({ role: authRole, city: authPartnerCity, siteId: authPartnerSiteId })
-      );
+      const j = JSON.stringify({ role: authRole, city: authPartnerCity, siteId: authPartnerSiteId });
+      sessionStorage.setItem('kkcam_auth', j);
+      try {
+        if (localStorage.getItem('kkcam_remember_auth') === '1') {
+          localStorage.setItem('kkcam_auth_persistent', j);
+        }
+      } catch (e) {}
     }
 
     function applyAuthFromStorage() {
       try {
-        const s = sessionStorage.getItem('kkcam_auth');
+        let s = sessionStorage.getItem('kkcam_auth');
+        if (!s && localStorage.getItem('kkcam_remember_auth') === '1') {
+          s = localStorage.getItem('kkcam_auth_persistent');
+          if (s) sessionStorage.setItem('kkcam_auth', s);
+        }
         if (!s) return false;
         const r = JSON.parse(s);
         if (r.role === 'super') {
@@ -8366,6 +8708,14 @@
         authPartnerCity = r.city;
         authPartnerSiteId = r.siteId || cityToSiteId(r.city);
       }
+      try {
+        const rem = document.getElementById('loginRememberMe');
+        if (rem && rem.checked) localStorage.setItem('kkcam_remember_auth', '1');
+        else {
+          localStorage.removeItem('kkcam_remember_auth');
+          localStorage.removeItem('kkcam_auth_persistent');
+        }
+      } catch (e) {}
       persistAuth();
       const passEl = document.getElementById('loginPass');
       const filledSyncFromPass = await ensureKkcamSyncUserFromLoginPassword(passEl ? passEl.value : '');
@@ -8374,6 +8724,7 @@
       await maybeAutoMigrateLegacyLocalToCloud();
       await maybeAutoHydrateFromCloudWhenEmpty();
       if (isPartner() && splitMode === 'nanchang') splitMode = 'regular';
+      destroyLoginShell();
       document.getElementById('loginRoot').classList.add('hidden');
       document.getElementById('appShell').classList.remove('hidden');
       refreshRoleBadge();
@@ -8410,9 +8761,157 @@
     });
 
     document.getElementById('btnLogout').addEventListener('click', () => {
+      try {
+        localStorage.removeItem('kkcam_remember_auth');
+        localStorage.removeItem('kkcam_auth_persistent');
+      } catch (e) {}
       sessionStorage.removeItem('kkcam_auth');
       location.reload();
     });
+
+    let loginShellRaf = null;
+    let loginShellClockTimer = null;
+    let loginShellMouseAbort = null;
+    /** @type {{ x: number, y: number, z: number }[]|null} */
+    let loginParticlePoints = null;
+
+    function destroyLoginShell() {
+      if (loginShellRaf != null) {
+        cancelAnimationFrame(loginShellRaf);
+        loginShellRaf = null;
+      }
+      if (loginShellClockTimer != null) {
+        clearInterval(loginShellClockTimer);
+        loginShellClockTimer = null;
+      }
+      if (loginShellMouseAbort) {
+        loginShellMouseAbort.abort();
+        loginShellMouseAbort = null;
+      }
+    }
+
+    function initLoginShell() {
+      const root = document.getElementById('loginRoot');
+      if (!root || root.classList.contains('hidden')) return;
+
+      destroyLoginShell();
+
+      try {
+        const rem = document.getElementById('loginRememberMe');
+        if (rem) rem.checked = localStorage.getItem('kkcam_remember_auth') === '1';
+      } catch (e) {}
+
+      const clockEl = document.getElementById('loginHudClock');
+      const coordEl = document.getElementById('loginHudCoords');
+      const pad2 = (n) => String(Math.max(0, Math.min(99, n | 0))).padStart(2, '0');
+
+      const tickClock = () => {
+        if (!clockEl) return;
+        const d = new Date();
+        const p = (n, l = 2) => String(n).padStart(l, '0');
+        clockEl.textContent = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}.${p(d.getMilliseconds(), 3)} +`;
+      };
+      tickClock();
+      loginShellClockTimer = setInterval(tickClock, 48);
+
+      let mx = 0;
+      let my = 0;
+      loginShellMouseAbort = new AbortController();
+      const gridBg = root.querySelector('.kk-login-grid-bg');
+      root.addEventListener(
+        'mousemove',
+        (e) => {
+          const iw = Math.max(window.innerWidth, 1);
+          const ih = Math.max(window.innerHeight, 1);
+          mx = (e.clientX / iw - 0.5) * 2;
+          my = (e.clientY / ih - 0.5) * 2;
+          if (coordEl) {
+            const xv = ((e.clientX / iw) * 99) | 0;
+            const yv = ((e.clientY / ih) * 99) | 0;
+            const zv = (((e.clientX + e.clientY) % 360) * 99 / 360) | 0;
+            coordEl.textContent = `+ COORDS: ${pad2(xv)}.${pad2(yv)}.${pad2(zv)}`;
+          }
+          if (gridBg) {
+            const px = ((e.clientX / iw - 0.5) * -8).toFixed(2);
+            const py = ((e.clientY / ih - 0.5) * -8).toFixed(2);
+            gridBg.style.transform = `translate3d(${px}px, ${py}px, 0)`;
+          }
+        },
+        { signal: loginShellMouseAbort.signal }
+      );
+
+      const canvas = document.getElementById('loginParticleCanvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const n = 400;
+      if (!loginParticlePoints) {
+        loginParticlePoints = [];
+        for (let i = 0; i < n; i++) {
+          const phi = Math.acos(1 - (2 * (i + 0.5)) / n);
+          const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+          loginParticlePoints.push({
+            x: Math.sin(phi) * Math.cos(theta),
+            y: Math.cos(phi),
+            z: Math.sin(phi) * Math.sin(theta),
+          });
+        }
+      }
+      const pts = loginParticlePoints;
+      const t0 = performance.now();
+      const draw = () => {
+        const lr = document.getElementById('loginRoot');
+        if (!lr || lr.classList.contains('hidden')) {
+          destroyLoginShell();
+          return;
+        }
+        const wrap = canvas.parentElement;
+        const rect = wrap ? wrap.getBoundingClientRect() : canvas.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const bw = Math.max(1, rect.width | 0);
+        const bh = Math.max(1, rect.height | 0);
+        if (canvas.width !== bw * dpr || canvas.height !== bh * dpr) {
+          canvas.width = bw * dpr;
+          canvas.height = bh * dpr;
+        }
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, bw, bh);
+        const cx = bw * 0.5;
+        const cy = bh * 0.55;
+        const R = Math.min(bw, bh) * 0.42;
+        const t = (performance.now() - t0) / 1000;
+        const Ay = t * 0.55 + mx * 0.65;
+        const Ax = my * 0.35 + Math.sin(t * 0.35) * 0.12;
+        const cosY = Math.cos(Ay);
+        const sinY = Math.sin(Ay);
+        const cosX = Math.cos(Ax);
+        const sinX = Math.sin(Ax);
+        const projected = [];
+        for (let i = 0; i < pts.length; i++) {
+          const p = pts[i];
+          const x1 = p.x * cosY + p.z * sinY;
+          const z1 = -p.x * sinY + p.z * cosY;
+          const y1 = p.y;
+          const y2 = y1 * cosX - z1 * sinX;
+          const z2 = y1 * sinX + z1 * cosX;
+          const x2 = x1;
+          const persp = 2.35;
+          const sc = persp / (persp + z2);
+          projected.push({ sx: cx + x2 * sc * R, sy: cy + y2 * sc * R, z2, sc });
+        }
+        projected.sort((a, b) => a.z2 - b.z2);
+        for (let j = 0; j < projected.length; j++) {
+          const q = projected[j];
+          const al = 0.12 + (q.z2 + 1) * 0.28;
+          const rad = Math.max(0.75, q.sc * 2.05);
+          ctx.beginPath();
+          ctx.arc(q.sx, q.sy, rad, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(0,0,0,${Math.min(0.82, al)}`;
+          ctx.fill();
+        }
+        loginShellRaf = requestAnimationFrame(draw);
+      };
+      loginShellRaf = requestAnimationFrame(draw);
+    }
 
     async function boot() {
       loadState();
@@ -8420,6 +8919,7 @@
       if (!applyAuthFromStorage()) return;
       await maybeAutoMigrateLegacyLocalToCloud();
       await maybeAutoHydrateFromCloudWhenEmpty();
+      destroyLoginShell();
       document.getElementById('loginRoot').classList.add('hidden');
       document.getElementById('appShell').classList.remove('hidden');
       refreshRoleBadge();
@@ -8447,6 +8947,7 @@
       } catch (e) {}
     }
 
+    initLoginShell();
     boot().catch(() => {});
   </script>
 </body>
