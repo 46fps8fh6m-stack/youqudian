@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#292524" />
+  <meta name="theme-color" content="#7646FF" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="有趣点" />
@@ -18,7 +18,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link
-    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500&display=swap"
+    href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;1,500&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet"
   />
   <script src="https://cdn.tailwindcss.com"></script>
@@ -27,11 +27,32 @@
       theme: {
         extend: {
           fontFamily: {
-            sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', 'sans-serif'],
+            sans: [
+              'Plus Jakarta Sans',
+              '-apple-system',
+              'BlinkMacSystemFont',
+              'SF Pro Display',
+              'Segoe UI',
+              'PingFang SC',
+              'Hiragino Sans GB',
+              'Microsoft YaHei',
+              'sans-serif',
+            ],
+          },
+          colors: {
+            kk: {
+              violet: '#7646FF',
+              pink: '#FFB7FF',
+              mint: '#8EFFC9',
+              ink: '#1A1A1A',
+              muted: '#7A7A7A',
+              line: '#F0F0F0',
+            },
           },
           boxShadow: {
-            'float': '0 12px 40px rgba(15, 23, 42, 0.08), 0 2px 12px rgba(15, 23, 42, 0.04)',
-            'card': '0 2px 16px rgba(15, 23, 42, 0.06)',
+            float: '0 12px 40px rgba(15, 23, 42, 0.08), 0 2px 12px rgba(15, 23, 42, 0.04)',
+            card: '0 4px 12px rgba(0, 0, 0, 0.05)',
+            kk: '0 4px 12px rgba(0, 0, 0, 0.05)',
           },
         },
       },
@@ -339,9 +360,38 @@
       line-height: 1.45;
       color: #a1a1aa;
     }
+
+    /* —— 工作台 · B 端浅色壳（#appShell 内） —— */
+    #kkAppSidebar {
+      border-color: #f0f0f0;
+    }
+    .kk-sidebar-item {
+      transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    }
+    .kk-sidebar-item-active {
+      background: rgba(118, 70, 255, 0.1);
+      color: #7646ff;
+      font-weight: 700;
+    }
+    .kk-sidebar-city {
+      transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    }
+    .kk-sidebar-city-active {
+      background: rgba(118, 70, 255, 0.12);
+      color: #7646ff;
+      font-weight: 600;
+    }
+    .kk-surface-card {
+      border-radius: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: box-shadow 0.3s ease-in-out;
+    }
+    .kk-surface-card:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    }
   </style>
 </head>
-<body id="appBody" class="min-h-screen bg-stone-100 text-zinc-900 font-sans pb-28 transition-[padding-bottom] duration-200">
+<body id="appBody" class="min-h-screen bg-white text-kk-ink font-sans pb-28 transition-[padding-bottom] duration-200">
   <!-- 口令登录（CamSaaS 风 · 超级 / 各站合伙） -->
   <div id="loginRoot" class="kk-login-root fixed inset-0 z-[100]">
     <div class="kk-login-grid-bg" aria-hidden="true"></div>
@@ -401,7 +451,7 @@
   <!-- 全站云同步：二级全屏页（不占首页版面） -->
   <div
     id="kkCloudSyncPage"
-    class="hidden fixed inset-0 z-[92] flex flex-col bg-stone-100 text-zinc-900"
+    class="hidden fixed inset-0 z-[92] flex flex-col bg-white text-kk-ink"
     aria-hidden="true"
   >
     <div class="shrink-0 border-b border-zinc-200/90 bg-white/95 backdrop-blur-md shadow-sm">
@@ -501,19 +551,49 @@
     </div>
   </div>
 
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 pt-8 pb-6">
-    <header class="mb-8">
-      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
-        <div>
-          <h1 class="text-3xl sm:text-4xl font-semibold tracking-tight text-zinc-900">有趣点相机屋</h1>
-          <p id="stationTitle" class="text-sm text-zinc-500 mt-1">选择站点查看档期</p>
-          <p id="roleBadge" class="text-xs text-zinc-400 mt-1"></p>
+  <div class="flex flex-col lg:flex-row min-h-[100vh] bg-white">
+    <aside
+      id="kkAppSidebar"
+      class="w-full lg:w-[260px] lg:min-h-screen shrink-0 border-b lg:border-b-0 lg:border-r border-kk-line bg-white flex flex-col"
+    >
+      <div class="p-6 border-b border-kk-line">
+        <div class="flex items-center gap-3">
+          <div
+            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] bg-kk-violet/12 text-kk-violet"
+            aria-hidden="true"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.558-.646 1.16-.776 1.798a11.84 11.84 0 00.54 5.898c.375 1.006.91 1.938 1.578 2.754.668.816 1.462 1.505 2.347 2.03a7.12 7.12 0 003.246 1.051 7.08 7.08 0 003.132-.27 6.98 6.98 0 002.47-1.421 6.89 6.89 0 001.64-2.183 6.84 6.84 0 00.59-2.55V12a9 9 0 10-18 0v.75c0 1.06.286 2.11.827 3.025" />
+            </svg>
+          </div>
+          <div class="min-w-0">
+            <div class="font-bold text-kk-ink text-base leading-tight truncate">有趣点相机屋</div>
+            <div class="text-xs text-kk-muted mt-0.5">档期与资管</div>
+          </div>
+        </div>
+      </div>
+      <nav id="appSidebarNav" class="flex-1 p-4 space-y-1 overflow-y-auto" aria-label="主导航"></nav>
+      <div id="sidebarCityBlock" class="p-4 border-t border-kk-line shrink-0">
+        <p class="text-[11px] font-medium text-kk-muted mb-2">站点</p>
+        <div id="sidebarCityPickerInner" class="flex flex-wrap gap-2"></div>
+        <p id="sidebarPartnerCityLabel" class="hidden text-sm font-semibold text-kk-ink"></p>
+      </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col min-w-0 min-h-0">
+      <header
+        id="kkTopBar"
+        class="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-3 bg-white/95 backdrop-blur-md border-b border-kk-line px-5 py-4"
+      >
+        <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 min-w-0">
+          <span id="topBarCity" class="text-base font-bold text-kk-ink tracking-tight">工作台</span>
+          <span id="topBarDate" class="text-sm text-kk-muted"></span>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button
             type="button"
             id="btnAdminFeeSettings"
-            class="hidden rounded-full p-2 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-800 border border-transparent hover:border-zinc-200"
+            class="hidden rounded-full p-2 text-kk-muted hover:bg-kk-line/80 hover:text-kk-ink border border-transparent hover:border-kk-line transition-all duration-300"
             title="全局费率与分成"
             aria-label="全局费率设置"
           >
@@ -521,7 +601,7 @@
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.99l1.004.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.37.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28z"
+                d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.43.992a7.723 7.723 0 010 .255c-.008.378.137.75.43.99l1.004.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.37.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.47 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 010-.255c.007-.38-.138-.751-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.28z"
               />
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -529,64 +609,78 @@
           <button
             type="button"
             id="btnPartnerManual"
-            class="hidden rounded-full px-3 py-1.5 text-xs font-medium border border-sky-200 bg-sky-50 text-sky-900 hover:bg-sky-100"
+            class="hidden rounded-[10px] px-3 py-1.5 text-xs font-medium border border-kk-line bg-white text-kk-ink hover:bg-kk-line/40 transition-all duration-300"
           >
             使用手册
           </button>
           <button
             type="button"
             id="btnOpenCloudSync"
-            class="rounded-full px-3 py-1.5 text-xs font-medium border border-sky-300 bg-white text-sky-900 hover:bg-sky-50 shadow-sm"
+            class="rounded-[10px] px-3 py-1.5 text-xs font-semibold border border-kk-violet/25 bg-kk-violet/10 text-kk-violet hover:bg-kk-violet/15 transition-all duration-300"
             title="全站云同步（Redis）"
           >
             云同步
           </button>
-          <button type="button" id="btnLogout" class="rounded-full px-3 py-1.5 text-xs font-medium border border-zinc-300 text-zinc-600 hover:bg-zinc-100">切换身份</button>
-          <nav class="flex flex-wrap gap-2" id="stationNav"></nav>
+          <button
+            type="button"
+            id="btnLogout"
+            class="rounded-[10px] px-3 py-1.5 text-xs font-medium border border-kk-line text-kk-muted hover:bg-kk-line/50 hover:text-kk-ink transition-all duration-300"
+          >
+            切换身份
+          </button>
         </div>
-      </div>
+      </header>
 
-      <div id="stationTools" class="space-y-4">
-        <div class="flex flex-col xl:flex-row gap-4 items-stretch xl:items-end">
-          <div class="flex-1 min-w-0">
-            <label class="block text-xs text-zinc-500 mb-1.5">机型（全库去重下拉）</label>
-            <select
-              id="searchModelSelect"
-              class="w-full rounded-2xl bg-white border border-zinc-200/90 px-4 py-3 text-sm text-zinc-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-zinc-300 focus:border-zinc-300 transition appearance-none bg-[length:1rem] bg-[right_0.75rem_center] bg-no-repeat pr-10"
-              style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 stroke=%22%23666%22 viewBox=%220 0 24 24%22%3E%3Cpath stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%222%22 d=%22M19 9l-7 7-7-7%22/%3E%3C/svg%3E')"
-            >
-              <option value="">全部机型（仅本站列表）</option>
-            </select>
-            <p class="text-[11px] text-zinc-400 mt-1.5">选定机型并填写档期后，将<strong>穿透全网</strong>查找该时段内无档期冲突的空闲机身（含其他站点）。</p>
+      <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-6">
+        <div class="max-w-[1400px] mx-auto w-full pb-8">
+          <div id="kkWelcomeBlock" class="mb-8">
+            <h2 id="kkWelcomeHeading" class="text-3xl sm:text-[32px] font-bold text-kk-ink tracking-tight leading-tight">欢迎回来</h2>
+            <p id="stationTitle" class="text-sm text-kk-muted mt-2 max-w-2xl">选择站点查看档期</p>
+            <p id="roleBadge" class="text-xs text-kk-muted/90 mt-1"></p>
           </div>
-          <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
-            <div class="sm:w-44">
-              <label class="block text-xs text-zinc-500 mb-1.5">开始日期</label>
-              <input type="date" id="rangeStart" class="w-full rounded-2xl bg-white border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400/50" />
+
+          <div id="stationTools" class="space-y-4">
+            <div class="flex flex-col xl:flex-row gap-4 items-stretch xl:items-end">
+              <div class="flex-1 min-w-0">
+                <label class="block text-xs text-kk-muted mb-1.5 font-medium">机型（全库去重下拉）</label>
+                <select
+                  id="searchModelSelect"
+                  class="w-full rounded-[20px] bg-white border border-kk-line px-4 py-3 text-sm text-kk-ink shadow-kk focus:outline-none focus:ring-2 focus:ring-kk-violet/30 focus:border-kk-violet/40 transition-all duration-300 appearance-none bg-[length:1rem] bg-[right_0.75rem_center] bg-no-repeat pr-10"
+                  style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 stroke=%22%237A7A7A%22 viewBox=%220 0 24 24%22%3E%3Cpath stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%222%22 d=%22M19 9l-7 7-7-7%22/%3E%3C/svg%3E')"
+                >
+                  <option value="">全部机型（仅本站列表）</option>
+                </select>
+                <p class="text-[11px] text-kk-muted mt-1.5">选定机型并填写档期后，将<strong class="text-kk-ink font-medium">穿透全网</strong>查找该时段内无档期冲突的空闲机身（含其他站点）。</p>
+              </div>
             </div>
-            <div class="sm:w-44">
-              <label class="block text-xs text-zinc-500 mb-1.5">结束日期</label>
-              <input type="date" id="rangeEnd" class="w-full rounded-2xl bg-white border border-zinc-200 px-3 py-2.5 text-sm text-zinc-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-400/50" />
+            <div id="stationToolsScheduleExtras" class="space-y-4">
+              <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+                <div class="sm:w-44">
+                  <label class="block text-xs text-kk-muted mb-1.5 font-medium">开始日期</label>
+                  <input type="date" id="rangeStart" class="w-full rounded-[20px] bg-white border border-kk-line px-3 py-2.5 text-sm text-kk-ink shadow-kk focus:outline-none focus:ring-2 focus:ring-kk-mint/50 transition-all duration-300" />
+                </div>
+                <div class="sm:w-44">
+                  <label class="block text-xs text-kk-muted mb-1.5 font-medium">结束日期</label>
+                  <input type="date" id="rangeEnd" class="w-full rounded-[20px] bg-white border border-kk-line px-3 py-2.5 text-sm text-kk-ink shadow-kk focus:outline-none focus:ring-2 focus:ring-kk-mint/50 transition-all duration-300" />
+                </div>
+              </div>
+              <p class="text-[11px] text-kk-muted mt-2">上述日期同时用于：档期穿透筛选、下方「区间总账」与「账单流水」汇总。</p>
+              <p id="scheduleHint" class="hidden text-xs text-emerald-800 bg-kk-mint/25 border border-kk-mint/50 rounded-[20px] px-4 py-3 leading-relaxed">
+                已启用档期筛选：<strong class="font-semibold text-emerald-900">绿框</strong>表示所选日期段内可租；<strong class="font-semibold text-amber-900">琥珀框</strong>表示该段已有占用——<strong class="font-semibold">仍可点击卡片</strong>，在弹窗里为<strong>其他日期</strong>录入新档期。清空或改掉顶部日期后，卡片会恢复常亮样式。选定机型时还将穿透全网各站展示空闲机身。
+              </p>
+              <div id="finRangeSummary" class="mt-4 kk-surface-card border border-kk-line bg-white px-6 py-4">
+                <p class="text-xs text-kk-muted mb-2 leading-relaxed">
+                  时间段总账 · 数字来自本机 <span class="font-mono text-kk-ink/80">localStorage</span>（拉取云端成功后也会写回此处再展示）· 实收 =
+                  <span class="font-mono text-kk-ink/90">租金 − 租金×0.006 − 3.12 − 快递 − 额外</span>
+                </p>
+                <div class="flex flex-wrap gap-x-8 gap-y-2 text-sm">
+                  <div><span class="text-kk-muted">总实收</span> <span id="finSumActual" class="ml-1 font-mono font-semibold text-emerald-600">¥0.00</span></div>
+                  <div><span class="text-kk-muted">个人到账(估)</span> <span id="finSumPersonal" class="ml-1 font-mono font-semibold text-kk-violet">¥0.00</span></div>
+                  <div><span class="text-kk-muted">公共支出(估)</span> <span id="finSumPub" class="ml-1 font-mono font-semibold text-kk-ink">¥0.00</span></div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-        <p class="text-[11px] text-zinc-400 mt-2">上述日期同时用于：档期穿透筛选、下方「区间总账」与「账单流水」汇总。</p>
-        <p id="scheduleHint" class="hidden text-xs text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 leading-relaxed">
-          已启用档期筛选：<strong class="font-semibold text-emerald-900">绿框</strong>表示所选日期段内可租；<strong class="font-semibold text-amber-900">琥珀框</strong>表示该段已有占用——<strong class="font-semibold">仍可点击卡片</strong>，在弹窗里为<strong>其他日期</strong>录入新档期。清空或改掉顶部日期后，卡片会恢复常亮样式。选定机型时还将穿透全网各站展示空闲机身。
-        </p>
-        <div id="finRangeSummary" class="mt-4 rounded-2xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
-          <p class="text-xs text-zinc-500 mb-2 leading-relaxed">
-            时间段总账 · 数字来自本机 <span class="font-mono text-zinc-600">localStorage</span>（拉取云端成功后也会写回此处再展示）· 实收 =
-            <span class="font-mono text-zinc-700">租金 − 租金×0.006 − 3.12 − 快递 − 额外</span>
-          </p>
-          <div class="flex flex-wrap gap-x-8 gap-y-2 text-sm">
-            <div><span class="text-zinc-500">总实收</span> <span id="finSumActual" class="ml-1 font-mono font-semibold text-emerald-700">¥0.00</span></div>
-            <div><span class="text-zinc-500">个人到账(估)</span> <span id="finSumPersonal" class="ml-1 font-mono font-semibold text-violet-800">¥0.00</span></div>
-            <div><span class="text-zinc-500">公共支出(估)</span> <span id="finSumPub" class="ml-1 font-mono font-semibold text-zinc-800">¥0.00</span></div>
-          </div>
-        </div>
-      </div>
-    </header>
 
     <div id="mainSchedule">
     <section>
@@ -635,7 +729,7 @@
           <ol id="globalTop10Body" class="space-y-2 text-sm list-none pl-0"></ol>
         </div>
       </div>
-      <div id="citySubNav" class="hidden mb-4 flex flex-wrap gap-2 border-b border-zinc-200/90 pb-3">
+      <div id="citySubNav" class="hidden mb-4 flex flex-wrap gap-2 border-b border-kk-line pb-3">
         <button type="button" id="cityTabSchedule" class="city-sub-tab rounded-full px-4 py-2 text-sm font-medium border transition">档期 · 机身</button>
         <button type="button" id="cityTabAnalytics" class="city-sub-tab rounded-full px-4 py-2 text-sm font-medium border transition">经营月报</button>
       </div>
@@ -645,25 +739,25 @@
         <div id="cardGrid"></div>
         <p id="emptyHint" class="hidden text-center text-zinc-500 py-12">没有匹配的相机</p>
       </div>
-      <div id="finFlowSection" class="mt-8 mb-6 rounded-2xl border border-zinc-200 bg-white p-4 sm:p-5 shadow-sm">
-        <h3 class="text-sm font-semibold text-zinc-900">账单流水</h3>
-        <p class="text-xs text-zinc-500 mt-1 mb-3">
+      <div id="finFlowSection" class="mt-8 mb-6 kk-surface-card border border-kk-line bg-white p-6">
+        <h3 class="text-base font-bold text-kk-ink">账单流水</h3>
+        <p class="text-xs text-kk-muted mt-1 mb-4">
           已完单 · 按完单日期降序 · 与顶部日期区间联动（展示的是本机已加载的订单）。「修改」需该单<strong>未</strong>勾选财务页「合伙人已结清」；「删除」仍可删误录。跨设备请点顶栏<strong>云同步</strong>进入 Redis 全量页或 JSON 导入；持久化在本机
           <span class="font-mono text-zinc-600">localStorage</span>。
         </p>
-        <div class="overflow-x-auto rounded-xl border border-zinc-100">
+        <div class="overflow-x-auto rounded-[16px] border border-kk-line">
           <table class="w-full text-left text-xs sm:text-sm min-w-[640px]">
-            <thead class="text-zinc-500 border-b border-zinc-100 bg-zinc-50/80">
+            <thead class="text-kk-muted border-b border-kk-line bg-kk-line/30">
               <tr>
-                <th class="px-3 py-2 font-medium">日期</th>
-                <th class="px-3 py-2 font-medium">机身</th>
-                <th class="px-3 py-2 font-medium text-right">租金</th>
-                <th class="px-3 py-2 font-medium text-right">实收</th>
-                <th class="px-3 py-2 font-medium">分账模式</th>
-                <th class="px-3 py-2 font-medium text-right min-w-[148px]">操作</th>
+                <th class="px-4 py-3 font-semibold">日期</th>
+                <th class="px-4 py-3 font-semibold">机身</th>
+                <th class="px-4 py-3 font-semibold text-right">租金</th>
+                <th class="px-4 py-3 font-semibold text-right">实收</th>
+                <th class="px-4 py-3 font-semibold">分账模式</th>
+                <th class="px-4 py-3 font-semibold text-right min-w-[148px]">操作</th>
               </tr>
             </thead>
-            <tbody id="finFlowTableBody" class="divide-y divide-zinc-100"></tbody>
+            <tbody id="finFlowTableBody" class="divide-y divide-kk-line"></tbody>
           </table>
         </div>
         <p id="finFlowEmpty" class="hidden text-center text-zinc-400 py-8 text-sm">该区间内暂无账单</p>
@@ -836,6 +930,9 @@
         >
           系统初始化（一键清空）
         </button>
+      </div>
+    </div>
+        </div>
       </div>
     </div>
   </div>
@@ -1475,8 +1572,8 @@
   </div>
 
   <!-- 录单计算器：默认收起，减少遮挡档期 -->
-  <div id="calcDock" class="fixed bottom-0 left-0 right-0 z-50 pointer-events-none">
-    <div class="max-w-6xl mx-auto px-3 sm:px-6 pb-3 pointer-events-auto">
+  <div id="calcDock" class="fixed bottom-0 left-0 right-0 z-50 pointer-events-none lg:pl-[260px]">
+    <div class="max-w-[1400px] mx-auto px-3 sm:px-6 pb-3 pointer-events-auto">
       <div id="calcBar" class="rounded-2xl bg-white/95 backdrop-blur-md border border-zinc-200 shadow-float px-4 py-2.5 flex flex-wrap items-center gap-3 justify-between">
         <div class="flex items-center gap-3 min-w-0">
           <span class="text-sm font-semibold text-zinc-900 shrink-0">录单</span>
@@ -2096,6 +2193,9 @@
 
     /** 城市页二级视图：档期 | 经营月报 */
     let citySubView = 'schedule';
+
+    /** 侧边栏工作台：相机库（仅机型+卡片）| 档期管理（日期/总账/流水等完整工具） */
+    let workbenchMode = 'schedule';
 
     /** 当前「页面」：总览 或 某一城（只显示该城机身，不再全城堆叠） */
     let stationPage = '杭州';
@@ -3370,6 +3470,19 @@
       } catch (e) {}
     }
 
+    function loadWorkbenchMode() {
+      try {
+        const v = sessionStorage.getItem('kkcam_workbench_mode');
+        if (v === 'cameras' || v === 'schedule') workbenchMode = v;
+      } catch (e) {}
+    }
+
+    function saveWorkbenchMode() {
+      try {
+        sessionStorage.setItem('kkcam_workbench_mode', workbenchMode);
+      } catch (e) {}
+    }
+
     function isCityStationPage() {
       return ['深圳', '杭州', '武汉', '南昌'].includes(stationPage);
     }
@@ -3389,6 +3502,18 @@
         stationPage !== 'transfers' &&
         isCityStationPage();
       const partnerOk = !isPartner() || stationPage === authPartnerCity;
+
+      if (workbenchMode === 'cameras' && showTabs && partnerOk) {
+        citySubView = 'schedule';
+        saveCitySubView();
+        nav.classList.add('hidden');
+        if (hint) hint.classList.remove('hidden');
+        block.classList.remove('hidden');
+        tools.classList.remove('hidden');
+        scheduleHint.classList.add('hidden');
+        return;
+      }
+
       if (!showTabs || !partnerOk) {
         nav.classList.add('hidden');
         if (hint) hint.classList.add('hidden');
@@ -3397,9 +3522,10 @@
       }
       nav.classList.remove('hidden');
       const onSchedule = citySubView === 'schedule';
-      const base = 'city-sub-tab rounded-full px-4 py-2 text-sm font-medium border transition';
-      const active = ' bg-zinc-900 text-white border-zinc-900 shadow-sm';
-      const idle = ' bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50';
+      const base =
+        'city-sub-tab rounded-[12px] px-4 py-2 text-sm font-medium border transition-all duration-300 ease-in-out';
+      const active = ' bg-kk-violet/12 text-kk-violet border-kk-violet/25 font-bold';
+      const idle = ' bg-white text-kk-muted border-kk-line hover:bg-kk-line/40';
       if (ts) ts.className = base + (onSchedule ? active : idle);
       if (ta) ta.className = base + (!onSchedule ? active : idle);
       if (hint) hint.classList.toggle('hidden', !onSchedule);
@@ -3409,31 +3535,126 @@
       scheduleHint.classList.toggle('hidden', !onSchedule || !smart);
     }
 
-    function buildStationNav() {
-      const nav = document.getElementById('stationNav');
+    function ensureCityForWorkbench() {
+      if (isCityStationPage()) return;
+      let fb = '杭州';
+      try {
+        const st = localStorage.getItem('kkcam_station');
+        if (st && ['杭州', '深圳', '武汉', '南昌'].includes(st)) fb = st;
+      } catch (e) {}
+      if (isPartner()) fb = authPartnerCity || fb;
+      stationPage = fb;
+    }
+
+    function buildAppSidebar() {
+      const nav = document.getElementById('appSidebarNav');
+      const inner = document.getElementById('sidebarCityPickerInner');
+      const partnerLbl = document.getElementById('sidebarPartnerCityLabel');
       if (!nav) return;
       nav.innerHTML = '';
-      const pages = isSuper()
-        ? ['overview', '杭州', '深圳', '南昌', '武汉', 'transfers', 'finance', 'settings']
-        : ['overview', authPartnerCity || '杭州', 'transfers'];
-      pages.forEach((p) => {
+      const items = [
+        { key: 'overview', label: '总览' },
+        { key: 'library', label: '相机库' },
+        { key: 'schedule', label: '档期管理' },
+        { key: 'transfers', label: '调拨审批' },
+      ];
+      if (isSuper()) {
+        items.push({ key: 'finance', label: '财务流水' }, { key: 'settings', label: '系统设置' });
+      }
+      items.forEach((it) => {
+        if (it.key === 'finance' && !isSuper()) return;
+        if (it.key === 'settings' && !isSuper()) return;
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.dataset.page = p;
+        btn.dataset.sidebarNav = it.key;
         btn.className =
-          'nav-station rounded-full px-4 py-2 text-sm font-medium bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-50 transition';
-        btn.textContent =
-          p === 'overview'
-            ? '总览'
-            : p === 'finance'
-              ? '财务总览'
-              : p === 'settings'
-                ? '系统设置'
-                : p === 'transfers'
-                  ? '调拨审批'
-                  : p + '站';
+          'kk-sidebar-item w-full rounded-xl px-3 py-2.5 text-sm text-kk-ink/85 font-medium text-left flex items-center gap-2';
+        btn.textContent = it.label;
         nav.appendChild(btn);
       });
+
+      if (inner) inner.innerHTML = '';
+      if (isSuper() && inner) {
+        inner.classList.remove('hidden');
+        CITIES_ORDER.forEach((city) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.dataset.sidebarCity = city;
+          b.className =
+            'kk-sidebar-city rounded-lg border border-kk-line px-2.5 py-1 text-xs font-medium text-kk-muted hover:bg-kk-line/50 transition-all duration-300';
+          b.textContent = city;
+          inner.appendChild(b);
+        });
+        if (partnerLbl) partnerLbl.classList.add('hidden');
+      } else if (partnerLbl && inner) {
+        inner.classList.add('hidden');
+        partnerLbl.classList.remove('hidden');
+        partnerLbl.textContent = (authPartnerCity || '本站') + '站';
+      } else if (inner) {
+        inner.classList.remove('hidden');
+      }
+    }
+
+    function syncAppSidebar() {
+      document.querySelectorAll('[data-sidebar-nav]').forEach((btn) => {
+        const k = btn.getAttribute('data-sidebar-nav');
+        let on = false;
+        if (k === 'overview') on = stationPage === 'overview';
+        else if (k === 'transfers') on = stationPage === 'transfers';
+        else if (k === 'finance') on = stationPage === 'finance';
+        else if (k === 'settings') on = stationPage === 'settings';
+        else if (k === 'library') on = isCityStationPage() && workbenchMode === 'cameras';
+        else if (k === 'schedule') on = isCityStationPage() && workbenchMode === 'schedule';
+        btn.classList.toggle('kk-sidebar-item-active', on);
+      });
+      document.querySelectorAll('[data-sidebar-city]').forEach((btn) => {
+        const c = btn.getAttribute('data-sidebar-city');
+        const on = isCityStationPage() && stationPage === c;
+        btn.classList.toggle('kk-sidebar-city-active', on);
+        btn.classList.toggle('border-kk-violet/30', on);
+      });
+    }
+
+    function updateTopBarAndWelcome() {
+      const cityEl = document.getElementById('topBarCity');
+      const dateEl = document.getElementById('topBarDate');
+      const welcomeEl = document.getElementById('kkWelcomeHeading');
+      if (dateEl) {
+        const d = new Date();
+        const wk = ['日', '一', '二', '三', '四', '五', '六'][d.getDay()];
+        dateEl.textContent = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 · 星期${wk}`;
+      }
+      let cityLine = '工作台';
+      if (stationPage === 'overview') cityLine = '全网总览';
+      else if (stationPage === 'finance') cityLine = '财务流水';
+      else if (stationPage === 'settings') cityLine = '系统设置';
+      else if (stationPage === 'transfers') cityLine = '调拨审批';
+      else if (isCityStationPage()) cityLine = `${stationPage}站`;
+      if (cityEl) cityEl.textContent = cityLine;
+
+      if (welcomeEl) {
+        if (stationPage === 'overview') welcomeEl.textContent = '欢迎回来';
+        else if (stationPage === 'finance') welcomeEl.textContent = '财务流水';
+        else if (stationPage === 'settings') welcomeEl.textContent = '系统设置';
+        else if (stationPage === 'transfers') welcomeEl.textContent = '调拨审批';
+        else if (isCityStationPage())
+          welcomeEl.textContent = workbenchMode === 'cameras' ? '相机库' : '档期管理';
+        else welcomeEl.textContent = '欢迎回来';
+      }
+    }
+
+    function applyStationToolsLayoutForWorkbench() {
+      const extras = document.getElementById('stationToolsScheduleExtras');
+      if (!extras) return;
+      const show =
+        isCityStationPage() &&
+        workbenchMode === 'schedule' &&
+        citySubView === 'schedule' &&
+        stationPage !== 'overview' &&
+        stationPage !== 'finance' &&
+        stationPage !== 'settings' &&
+        stationPage !== 'transfers';
+      extras.classList.toggle('hidden', !show);
     }
 
     function syncModeButtonsVisibility() {
@@ -3771,7 +3992,7 @@
     ${
       localCams.length === 0
         ? '<p class="text-sm text-zinc-400 py-4 border border-dashed border-zinc-200 rounded-2xl text-center">本站该机型在所选档期无空闲机身</p>'
-        : `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${localCams.map((c) => renderCard(c, { conflict: false, available: true, smart: true })).join('')}</div>`
+        : `<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">${localCams.map((c) => renderCard(c, { conflict: false, available: true, smart: true })).join('')}</div>`
     }
   </div>`);
 
@@ -3814,7 +4035,8 @@
     function renderGrouped() {
       const inbound = buildTransferInboundBanner();
       const list = baseListForRender();
-      const smart = isScheduleSearchOn();
+      const libOnly = workbenchMode === 'cameras' && isCityStationPage();
+      const smart = libOnly ? false : isScheduleSearchOn();
 
       if (smart && isGlobPenetrationActive()) {
         renderGlobalPenetrationSearch(inbound);
@@ -3835,7 +4057,7 @@
               <span class="text-xs font-mono font-semibold text-teal-800">${preStock.length} 台</span>
             </div>
             <p class="text-xs text-teal-900/85 leading-relaxed">已划拨至本站途中，可在此提前锁档；<strong>起租日须不早于发起日 +2 天</strong>（物流缓冲）。点卡片录入时可见锁定日历。</p>
-            <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-4">${preStock.map((c) => renderCard(c)).join('')}</div>
+            <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">${preStock.map((c) => renderCard(c)).join('')}</div>
           </div>`
             : '';
         const gridContent =
@@ -3844,9 +4066,9 @@
             : preStock.length > 0
               ? `<div class="mb-2">
               <h3 class="text-xs font-semibold text-zinc-500 uppercase tracking-wide mb-2">在库机身</h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">${rest.map((c) => renderCard(c)).join('')}</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">${rest.map((c) => renderCard(c)).join('')}</div>
             </div>`
-              : `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${rest.map((c) => renderCard(c)).join('')}</div>`;
+              : `<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">${rest.map((c) => renderCard(c)).join('')}</div>`;
         grid.innerHTML = inbound + banner + preStockHtml + gridContent;
         attachCardClicks();
         return;
@@ -3876,7 +4098,7 @@
         parts.push(`
           <div class="mb-8">
             <h3 class="text-sm font-semibold text-zinc-700 mb-2 flex items-center gap-2">档期冲突 <span class="text-xs font-normal text-zinc-500">该时段已有占用</span></h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">${conflicts.map((c) => renderCard(c, { conflict: true, available: false, smart: true })).join('')}</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">${conflicts.map((c) => renderCard(c, { conflict: true, available: false, smart: true })).join('')}</div>
           </div>
         `);
       }
@@ -3889,7 +4111,7 @@
             ${
               arr.length === 0
                 ? '<p class="text-sm text-zinc-400 py-4 border border-dashed border-zinc-200 rounded-2xl text-center">本站此机型在所选档期无空闲机身</p>'
-                : `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">${arr.map((c) => renderCard(c, { conflict: false, available: true, smart: true })).join('')}</div>`
+                : `<div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">${arr.map((c) => renderCard(c, { conflict: false, available: true, smart: true })).join('')}</div>`
             }
           </div>
         `);
@@ -4002,20 +4224,15 @@
       stationTitle.textContent = (isPartner() ? mapPartner : mapSuper)[stationPage] || '';
     }
 
-    function syncStationNav() {
-      document.querySelectorAll('.nav-station').forEach((b) => {
-        const on = b.dataset.page === stationPage;
-        b.className = on
-          ? 'nav-station rounded-full px-4 py-2 text-sm font-medium bg-zinc-900 text-white shadow-sm transition'
-          : 'nav-station rounded-full px-4 py-2 text-sm font-medium bg-white text-zinc-700 border border-zinc-200 hover:bg-zinc-50 transition';
-      });
-    }
-
     function setStationPage(page) {
       if (!ALL_PAGES.includes(page)) return;
       if (isPartner() && page !== 'overview' && page !== 'transfers' && page !== authPartnerCity) return;
       if (page === 'finance' && !isSuper()) return;
       if (page === 'settings' && !isSuper()) return;
+      if (['深圳', '杭州', '武汉', '南昌'].includes(page)) {
+        workbenchMode = 'schedule';
+        saveWorkbenchMode();
+      }
       stationPage = page;
       saveState();
       render();
@@ -4096,20 +4313,20 @@
       const citiesPartner = [{ key: pc, label: pc + '站', sub: '本站机身与录单 · 数据已与其他站点隔离' }];
       const cities = isSuper() ? citiesSuper : citiesPartner;
       overviewGrid.innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-4">
           ${cities
             .map(
               (x) => `
-            <button type="button" class="overview-go text-left rounded-2xl border border-zinc-200 bg-white p-6 shadow-card hover:border-zinc-400 hover:shadow-md transition" data-page="${x.key}">
-              <div class="text-lg font-semibold text-zinc-900">${x.label}</div>
-              <p class="text-sm text-zinc-500 mt-1">${x.sub}</p>
-              <p class="text-xs text-emerald-700 mt-4 font-medium">进入分站 →</p>
+            <button type="button" class="overview-go text-left kk-surface-card border border-kk-line bg-white p-6 hover:border-kk-violet/35 transition-all duration-300 ease-in-out" data-page="${x.key}">
+              <div class="text-lg font-bold text-kk-ink">${x.label}</div>
+              <p class="text-sm text-kk-muted mt-2 leading-relaxed">${x.sub}</p>
+              <p class="text-xs text-kk-violet mt-5 font-semibold">进入分站 →</p>
             </button>
           `
             )
             .join('')}
         </div>
-        <p class="text-xs text-zinc-500 text-center">${isSuper() ? '四站分治；南昌直营数据仅超级口令可见。' : '您仅可查看本站档期与 5:5 录单预估。'}</p>
+        <p class="text-xs text-kk-muted text-center">${isSuper() ? '四站分治；南昌直营数据仅超级口令可见。' : '您仅可查看本站档期与 5:5 录单预估。'}</p>
       `;
       overviewGrid.querySelectorAll('.overview-go').forEach((btn) => {
         btn.addEventListener('click', () => setStationPage(btn.dataset.page));
@@ -5618,8 +5835,10 @@
     function render() {
       refreshSearchModelOptions();
       refreshRoleBadge();
-      syncStationNav();
+      syncAppSidebar();
+      updateTopBarAndWelcome();
       updateStationTitle();
+      applyStationToolsLayoutForWorkbench();
       const mainSchedule = document.getElementById('mainSchedule');
       const financeMain = document.getElementById('financeMain');
       const settingsMain = document.getElementById('settingsMain');
@@ -5632,6 +5851,8 @@
         if (financeMain) financeMain.classList.add('hidden');
         if (transfersMain) transfersMain.classList.add('hidden');
         if (settingsMain) settingsMain.classList.remove('hidden');
+        stationTools.classList.add('hidden');
+        scheduleHint.classList.add('hidden');
         paintFinRangeSummaryAndFlow();
         return;
       }
@@ -5659,6 +5880,8 @@
         document.getElementById('stationInsightsWrap')?.classList.add('hidden');
         if (mainSchedule) mainSchedule.classList.add('hidden');
         if (financeMain) financeMain.classList.remove('hidden');
+        stationTools.classList.add('hidden');
+        scheduleHint.classList.add('hidden');
         renderFinance();
         paintFinRangeSummaryAndFlow();
         return;
@@ -7448,10 +7671,34 @@
     document.getElementById('modalClose2').addEventListener('click', closeModal);
     document.getElementById('modalBackdrop').addEventListener('click', closeModal);
 
-    document.getElementById('stationNav').addEventListener('click', (e) => {
-      const btn = e.target.closest('.nav-station');
-      if (!btn) return;
-      setStationPage(btn.dataset.page);
+    document.getElementById('appSidebarNav')?.addEventListener('click', (e) => {
+      const navBtn = e.target.closest('[data-sidebar-nav]');
+      if (!navBtn) return;
+      const k = navBtn.getAttribute('data-sidebar-nav');
+      if (k === 'overview') setStationPage('overview');
+      else if (k === 'transfers') setStationPage('transfers');
+      else if (k === 'finance') setStationPage('finance');
+      else if (k === 'settings') setStationPage('settings');
+      else if (k === 'library') {
+        workbenchMode = 'cameras';
+        saveWorkbenchMode();
+        ensureCityForWorkbench();
+        saveState();
+        render();
+      } else if (k === 'schedule') {
+        workbenchMode = 'schedule';
+        saveWorkbenchMode();
+        ensureCityForWorkbench();
+        saveState();
+        render();
+      }
+    });
+    document.getElementById('sidebarCityBlock')?.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-sidebar-city]');
+      if (!b) return;
+      const city = b.getAttribute('data-sidebar-city');
+      if (!city || !['深圳', '杭州', '武汉', '南昌'].includes(city)) return;
+      setStationPage(city);
     });
 
     document.getElementById('cityTabSchedule')?.addEventListener('click', () => {
@@ -8140,6 +8387,12 @@
         if (sumBox) sumBox.classList.add('hidden');
         return;
       }
+      const camLibOnly = workbenchMode === 'cameras' && isCityStationPage();
+      if (camLibOnly) {
+        if (sec) sec.classList.add('hidden');
+        if (sumBox) sumBox.classList.add('hidden');
+        return;
+      }
       if (sumBox) sumBox.classList.remove('hidden');
       if (isPartner()) {
         if (sec) sec.classList.add('hidden');
@@ -8217,21 +8470,22 @@
         } else {
           tbody.innerHTML = rows.length
             ? rows
-                .map((r) => {
+                .map((r, idx) => {
                   const bk = r.bid ? bookings.find((x) => x.id === r.bid) : null;
                   const showDel = bk && canDeleteFinFlowBooking(bk);
                   const showEdit = bk && canEditFinFlowBooking(bk);
                   const editBtn = showEdit
-                    ? `<button type="button" class="fin-flow-edit inline-flex shrink-0 items-center justify-center rounded-lg border border-sky-200 bg-sky-50 px-2 py-1 text-[11px] font-semibold text-sky-800 hover:bg-sky-100 active:scale-[0.98]" data-booking-id="${String(r.bid).replace(/"/g, '')}">修改</button>`
+                    ? `<button type="button" class="fin-flow-edit inline-flex shrink-0 items-center justify-center rounded-[10px] border border-kk-violet/25 bg-kk-violet/10 px-2 py-1 text-[11px] font-semibold text-kk-violet hover:bg-kk-violet/15 active:scale-[0.98] transition-all duration-300" data-booking-id="${String(r.bid).replace(/"/g, '')}">修改</button>`
                     : '';
                   const delBtn = showDel
-                    ? `<button type="button" class="fin-flow-del inline-flex shrink-0 items-center justify-center rounded-lg border border-rose-200 bg-rose-50 px-2 py-1 text-[11px] font-semibold text-rose-700 hover:bg-rose-100 active:scale-[0.98]" data-booking-id="${String(r.bid).replace(/"/g, '')}">删除</button>`
+                    ? `<button type="button" class="fin-flow-del inline-flex shrink-0 items-center justify-center rounded-[10px] border border-kk-pink/40 bg-kk-pink/15 px-2 py-1 text-[11px] font-semibold text-kk-ink hover:bg-kk-pink/25 active:scale-[0.98] transition-all duration-300" data-booking-id="${String(r.bid).replace(/"/g, '')}">删除</button>`
                     : '';
                   const actions =
                     editBtn || delBtn
                       ? `<div class="inline-flex flex-wrap gap-1 justify-end">${editBtn}${delBtn}</div>`
-                      : '<span class="text-zinc-300 text-[11px]">—</span>';
-                  return `<tr class="hover:bg-zinc-50/80"><td class="px-3 py-2 font-mono text-zinc-700">${r.ymd}</td><td class="px-3 py-2 text-zinc-800">${String(r.model).replace(/</g, '')}</td><td class="px-3 py-2 text-right font-mono">${fmt(r.rent)}</td><td class="px-3 py-2 text-right font-mono text-emerald-800">${fmt(r.actual)}</td><td class="px-3 py-2 text-zinc-800 text-[11px] whitespace-nowrap">${String(r.modeShort).replace(/</g, '')}</td><td class="px-3 py-2 text-right whitespace-nowrap">${actions}</td></tr>`;
+                      : '<span class="text-kk-line text-[11px]">—</span>';
+                  const stripe = idx % 2 === 1 ? 'bg-kk-line/20' : 'bg-white';
+                  return `<tr class="${stripe} hover:bg-kk-violet/[0.06] transition-colors duration-300"><td class="px-4 py-2.5 font-mono text-kk-ink">${r.ymd}</td><td class="px-4 py-2.5 text-kk-ink">${String(r.model).replace(/</g, '')}</td><td class="px-4 py-2.5 text-right font-mono">${fmt(r.rent)}</td><td class="px-4 py-2.5 text-right font-mono text-emerald-600">${fmt(r.actual)}</td><td class="px-4 py-2.5 text-kk-ink text-[11px] whitespace-nowrap">${String(r.modeShort).replace(/</g, '')}</td><td class="px-4 py-2.5 text-right whitespace-nowrap">${actions}</td></tr>`;
                 })
                 .join('')
             : '';
@@ -8783,6 +9037,7 @@
       const autoSlotNew = await ensureAutoSyncUserIfEmpty();
       loadState();
       loadCitySubView();
+      loadWorkbenchMode();
       await maybeAutoMigrateLegacyLocalToCloud();
       await maybeAutoHydrateFromCloudWhenEmpty();
       if (isPartner() && splitMode === 'nanchang') splitMode = 'regular';
@@ -8790,7 +9045,7 @@
       document.getElementById('loginRoot').classList.add('hidden');
       document.getElementById('appShell').classList.remove('hidden');
       refreshRoleBadge();
-      buildStationNav();
+      buildAppSidebar();
       if (isPartner() && stationPage !== 'overview' && stationPage !== 'transfers' && stationPage !== authPartnerCity)
         stationPage = authPartnerCity || '杭州';
       if (isPartner() && stationPage === 'finance') stationPage = authPartnerCity || '杭州';
@@ -9004,6 +9259,7 @@
     async function boot() {
       loadState();
       loadCitySubView();
+      loadWorkbenchMode();
       if (!applyAuthFromStorage()) return;
       await maybeAutoMigrateLegacyLocalToCloud();
       await maybeAutoHydrateFromCloudWhenEmpty();
@@ -9011,7 +9267,7 @@
       document.getElementById('loginRoot').classList.add('hidden');
       document.getElementById('appShell').classList.remove('hidden');
       refreshRoleBadge();
-      buildStationNav();
+      buildAppSidebar();
       if (isPartner() && splitMode === 'nanchang') splitMode = 'regular';
       if (isPartner() && stationPage !== 'overview' && stationPage !== 'transfers' && stationPage !== authPartnerCity)
         stationPage = authPartnerCity || '杭州';
