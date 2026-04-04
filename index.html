@@ -3833,51 +3833,63 @@
       });
     }
 
-    function primaryActiveBooking(c) {
-      const act = activeBookingsForCamera(c.id).sort((a, b) => a.startDate.localeCompare(b.startDate));
-      return act[0] || null;
+    function cardScheduleInventoryTags(pb) {
+      if (bookingIsPeer(pb))
+        return `<div class="mt-1 text-[10px] font-semibold text-kk-forest">货源 · 同行调货</div>`;
+      if (bookingIsExtMediation(pb))
+        return `<div class="mt-1 text-[10px] font-semibold text-kk-forest">货源 · 外调撮合（合伙奖励 15% · 不外显外延）</div>`;
+      if (bookingIsOwnLendPeer(pb))
+        return `<div class="mt-1 text-[10px] font-semibold text-kk-forest">货源 · 我方机外借同行（实收 我方城市 7 : 同行 3）</div>`;
+      return '';
     }
 
     function cardScheduleDestinationBlock(c) {
-      const pb = primaryActiveBooking(c);
-      if (!pb) {
+      const actives = activeBookingsForCamera(c.id).sort((a, b) => a.startDate.localeCompare(b.startDate));
+      if (!actives.length) {
         return '<p class="text-[11px] text-kk-muted/70 mt-2">无进行中档期 · 可点击录入</p>';
       }
-      const dest = (pb.destination || '').trim();
-      const range = `${pb.startDate} ~ ${pb.endDate}`;
-      const destHtml = dest
-        ? `<span class="text-kk-muted font-medium">到达地 · ${dest.replace(/</g, '')}</span>`
-        : '<span class="text-kk-muted/70">到达地未填</span>';
-      const sh = pb.shipSnapshot;
-      const shipLine = sh
-        ? `<div class="mt-1.5 pt-1.5 border-t border-kk-line/80/80">
+      const multi = actives.length > 1;
+      const head = multi
+        ? `<div class="text-[10px] font-bold text-kk-forest mb-1.5">进行中档期 · 共 ${actives.length} 条（按起租日排序）</div>`
+        : '';
+      const rows = actives
+        .map((pb, idx) => {
+          const dest = (pb.destination || '').trim();
+          const range = `${pb.startDate} ~ ${pb.endDate}`;
+          const tenant = (pb.tenantName || '').trim().replace(/</g, '') || '未命名租客';
+          const destHtml = dest
+            ? `<span class="text-kk-muted font-medium">到达地 · ${dest.replace(/</g, '')}</span>`
+            : '<span class="text-kk-muted/70">到达地未填</span>';
+          const sh = pb.shipSnapshot;
+          const shipLine = sh
+            ? `<div class="mt-1.5 pt-1.5 border-t border-kk-line/80/80">
             <span class="text-kk-forest font-medium">已出库核验</span>
             <span class="text-kk-muted"> · 顺丰 </span><span class="font-mono text-kk-forest">${String(sh.sfExpress || '').replace(/</g, '')}</span>
           </div>`
-        : '';
-      const peerTag = bookingIsPeer(pb)
-        ? `<div class="mt-1 text-[10px] font-semibold text-kk-forest">货源 · 同行调货</div>`
-        : '';
-      const extTag = bookingIsExtMediation(pb)
-        ? `<div class="mt-1 text-[10px] font-semibold text-kk-forest">货源 · 外调撮合（合伙奖励 15% · 不外显外延）</div>`
-        : '';
-      const ownLendTag = bookingIsOwnLendPeer(pb)
-        ? `<div class="mt-1 text-[10px] font-semibold text-kk-forest">货源 · 我方机外借同行（实收 我方城市 7 : 同行 3）</div>`
-        : '';
-      const canCancelCard = !sh;
-      const cancelRow = canCancelCard
-        ? `<div class="mt-2 flex justify-end">
-            <button type="button" data-kk-cancel-booking="${pb.id}" class="rounded-lg border border-kk-orange/25 bg-white px-2 py-1 text-[10px] font-semibold text-kk-muted hover:bg-kk-orange/10">取消订单</button>
+            : '';
+          const statusBit = sh
+            ? '<span class="text-[10px] font-bold text-kk-orange ml-1">在租</span>'
+            : '<span class="text-[10px] font-bold text-kk-lime/90 ml-1">已预约</span>';
+          const topSep = idx > 0 ? 'mt-2.5 pt-2.5 border-t border-kk-line/80' : '';
+          const titleLine = multi
+            ? `<div class="text-kk-muted">第 ${idx + 1} 条 · <span class="text-kk-forest font-semibold">${range}</span> · ${tenant}${statusBit}</div>`
+            : `<div class="text-kk-muted">当前档期 <span class="text-kk-forest font-semibold">${range}</span> · ${tenant}${statusBit}</div>`;
+          const cancelRow = !sh
+            ? `<div class="mt-2 flex justify-end">
+            <button type="button" data-kk-cancel-booking="${pb.id}" class="rounded-lg border border-kk-orange/25 bg-white px-2 py-1 text-[10px] font-semibold text-kk-muted hover:bg-kk-orange/10">取消此单</button>
           </div>`
-        : '';
-      return `<div class="mt-2 rounded-lg bg-kk-canvas border border-kk-line/80 px-2.5 py-2 text-[11px] leading-snug relative">
-        <div class="text-kk-muted">当前档期 <span class="text-kk-muted">${range}</span></div>
+            : '';
+          return `<div class="${topSep}">${titleLine}
         <div class="mt-0.5">${destHtml}</div>
-        ${peerTag}
-        ${extTag}
-        ${ownLendTag}
+        ${cardScheduleInventoryTags(pb)}
         ${shipLine}
         ${cancelRow}
+      </div>`;
+        })
+        .join('');
+      return `<div class="mt-2 rounded-lg bg-kk-canvas border border-kk-line/80 px-2.5 py-2 text-[11px] leading-snug relative">
+        ${head}
+        ${rows}
       </div>`;
     }
 
