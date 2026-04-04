@@ -435,7 +435,7 @@
             <div class="flex flex-col sm:flex-row sm:flex-wrap gap-2 sm:items-center sm:justify-between">
               <label class="flex items-center gap-2 text-[11px] text-sky-900 cursor-pointer select-none">
                 <input type="checkbox" id="kkcamSyncAutopush" class="rounded border-sky-300 text-sky-700" />
-                保存时自动上传全量到 Redis
+                保存后自动同步到 Redis（默认开；约半秒防抖）— 取消勾选则仅能手点「上传到云端」
               </label>
               <div class="flex flex-wrap gap-2">
                 <button
@@ -482,7 +482,7 @@
           </div>
           <div class="text-[10px] text-sky-900/90 mt-2 space-y-1.5 leading-relaxed">
             <p>
-              <strong class="text-sky-950">配好 Redis 后，下面总账仍写 localStorage？</strong>属正常：界面数字来自<strong>本机浏览器</strong>；云端只在「上传 / 拉取」或勾选自动上传时更新。<strong>换手机看电脑上的数：</strong>① 两边打开<strong>同一网址</strong>（勿混用自定义域名与
+              <strong class="text-sky-950">配好 Redis 后，下面总账仍写 localStorage？</strong>属正常：界面先写本机再展示；<strong>默认</strong>在每次保存后自动把全量推到 Redis（可关掉）。手动「上传」仍可用作立即强制同步。<strong>换手机看电脑上的数：</strong>① 两边打开<strong>同一网址</strong>（勿混用自定义域名与
               <span class="font-mono">xxx.vercel.app</span>）；② 同步昵称一致（<strong>未手改时同一登录口令会自动一致</strong>）；③ 电脑上先<strong>上传</strong>或勾选自动上传，手机上再<strong>拉取</strong>（本机无业务数据时会尝试自动从云端拉一次）。
             </p>
             <p>
@@ -2144,7 +2144,16 @@
     }
 
     const KKCAM_SYNC_USER_KEY = 'kkcam_sync_user';
+    /** 存 '0' = 用户明确关闭自动上传；未设置或其它值 = 默认自动上传（与旧版「须勾选才上传」不同） */
     const KKCAM_SYNC_AUTOPUSH_KEY = 'kkcam_sync_autopush';
+
+    function kkcamIsAutopushEnabled() {
+      try {
+        return localStorage.getItem(KKCAM_SYNC_AUTOPUSH_KEY) !== '0';
+      } catch (e) {
+        return true;
+      }
+    }
     const KKCAM_CLOUD_MIRROR_KEY = 'kkcam_cloud_mirror_v1';
     const KKCAM_FULL_SYNC_VERSION = 2;
 
@@ -2350,11 +2359,7 @@
 
     function schedulePushFullStateToCloud() {
       if (!getKkcamSyncUser()) return;
-      try {
-        if (localStorage.getItem(KKCAM_SYNC_AUTOPUSH_KEY) !== '1') return;
-      } catch (e) {
-        return;
-      }
+      if (!kkcamIsAutopushEnabled()) return;
       clearTimeout(kkcamCloudPushTimer);
       kkcamCloudPushTimer = setTimeout(() => {
         pushFullStateToCloud(false).catch(() => {});
@@ -2683,12 +2688,12 @@
       }
       if (ap) {
         try {
-          ap.checked = localStorage.getItem(KKCAM_SYNC_AUTOPUSH_KEY) === '1';
+          ap.checked = kkcamIsAutopushEnabled();
         } catch (e) {}
         ap.addEventListener('change', () => {
           try {
-            if (ap.checked) localStorage.setItem(KKCAM_SYNC_AUTOPUSH_KEY, '1');
-            else localStorage.removeItem(KKCAM_SYNC_AUTOPUSH_KEY);
+            if (ap.checked) localStorage.removeItem(KKCAM_SYNC_AUTOPUSH_KEY);
+            else localStorage.setItem(KKCAM_SYNC_AUTOPUSH_KEY, '0');
           } catch (e) {}
         });
       }
