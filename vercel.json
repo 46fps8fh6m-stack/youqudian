@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/sync/full.js": {
+      "includeFiles": "lib/**"
+    },
+    "api/sync/bookings.js": {
+      "includeFiles": "lib/**"
+    },
+    "api/sync/ping.js": {
+      "includeFiles": "lib/**"
+    }
+  }
+}

@@ -148,6 +148,13 @@
             >
               导入全量 JSON
             </button>
+            <button
+              type="button"
+              id="kkcamSyncDiag"
+              class="rounded-xl bg-violet-100 border border-violet-300 text-violet-900 text-xs font-medium px-3 py-2 hover:bg-violet-200"
+            >
+              诊断同步接口
+            </button>
             <input type="file" id="kkcamImportFileInput" accept="application/json,.json" class="hidden" />
           </div>
         </div>
@@ -1965,6 +1972,53 @@
       }, 500);
     }
 
+    async function kkcamParseJsonOrText(res) {
+      const t = await res.text();
+      try {
+        return { json: JSON.parse(t), raw: t };
+      } catch (e) {
+        return { json: null, raw: t };
+      }
+    }
+
+    async function runKkcamSyncDiagnostics() {
+      const base = kkcamApiOrigin() || '';
+      const lines = [];
+      const safe = (s) => (s && s.length > 480 ? s.slice(0, 480) + '…' : s || '');
+      try {
+        const h = await fetch(base + '/api/health', { method: 'GET' });
+        const ht = await h.text();
+        lines.push('① GET /api/health → HTTP ' + h.status + '\n' + safe(ht));
+      } catch (e) {
+        lines.push('① /api/health 失败：' + e.message);
+      }
+      try {
+        const p = await fetch(base + '/api/sync/ping', { method: 'GET' });
+        const pt = await p.text();
+        lines.push('② GET /api/sync/ping → HTTP ' + p.status + '\n' + safe(pt));
+      } catch (e) {
+        lines.push('② /api/sync/ping 失败：' + e.message);
+      }
+      const u = getKkcamSyncUser();
+      if (u) {
+        try {
+          const f = await fetch(base + '/api/sync/full?user=' + encodeURIComponent(u), { method: 'GET' });
+          const ft = await f.text();
+          lines.push('③ GET /api/sync/full → HTTP ' + f.status + '\n' + safe(ft));
+        } catch (e) {
+          lines.push('③ /api/sync/full 失败：' + e.message);
+        }
+      } else {
+        lines.push('③ 未填同步昵称，跳过 full 测试');
+      }
+      lines.push('');
+      lines.push(
+        '解读：① 非 200 多为未部署 api 或 Root Directory 指错。② redis:false 或 hasRedisUrl:false → 检查 Vercel 的 REDIS_URL 并 Redeploy。③ 换设备须同一域名 + 同一昵称 + 先上传再拉取。'
+      );
+      alert(lines.join('\n\n'));
+      showKkToast('诊断完成（见弹窗）');
+    }
+
     async function pushFullStateToCloud(showToast) {
       const user = getKkcamSyncUser();
       if (!user) {
@@ -1980,12 +2034,20 @@
           body: JSON.stringify({ user, payload }),
         });
       } catch (e) {
-        if (showToast) showKkToast('上传失败：网络错误');
+        if (showToast) showKkToast('上传失败：网络错误 — ' + e.message);
         return false;
       }
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.ok) {
-        if (showToast) showKkToast('上传失败：' + (data.error || res.status));
+      const { json: data, raw } = await kkcamParseJsonOrText(res);
+      if (!res.ok || !data || !data.ok) {
+        const hint =
+          res.status === 404
+            ? '404：接口未进部署（检查 GitHub 是否含 api/、lib/、vercel.json、package.json）'
+            : data && data.error
+              ? data.error
+              : raw && raw.includes('NOT_FOUND')
+                ? 'Vercel NOT_FOUND'
+                : String(res.status);
+        if (showToast) showKkToast('上传失败：' + hint);
         return false;
       }
       markCloudMirrorOk();
@@ -2013,12 +2075,20 @@
           headers: { Accept: 'application/json' },
         });
       } catch (e) {
-        if (showToast) showKkToast('拉取失败：网络错误');
+        if (showToast) showKkToast('拉取失败：网络错误 — ' + e.message);
         return false;
       }
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.ok) {
-        if (showToast) showKkToast('拉取失败：' + (data.error || res.status));
+      const { json: data, raw: rawPull } = await kkcamParseJsonOrText(res);
+      if (!res.ok || !data || !data.ok) {
+        const hint =
+          res.status === 404
+            ? '404：接口未部署'
+            : data && data.error
+              ? data.error
+              : rawPull && rawPull.includes('NOT_FOUND')
+                ? 'Vercel NOT_FOUND'
+                : String(res.status);
+        if (showToast) showKkToast('拉取失败：' + hint);
         return false;
       }
       if (data.payload && typeof data.payload === 'object' && !Array.isArray(data.payload)) {
@@ -2040,12 +2110,20 @@
           headers: { Accept: 'application/json' },
         });
       } catch (e) {
-        if (showToast) showKkToast('云端无全量包且账单接口失败');
+        if (showToast) showKkToast('云端无全量包且账单接口失败 — ' + e.message);
         return false;
       }
-      const bd = await rb.json().catch(() => ({}));
-      if (!rb.ok || !bd.ok || !Array.isArray(bd.bookings)) {
-        if (showToast) showKkToast('云端暂无数据：请先在仍有本地数据的电脑打开本站并完成搬家');
+      const { json: bd, raw: rawB } = await kkcamParseJsonOrText(rb);
+      if (!rb.ok || !bd || !bd.ok || !Array.isArray(bd.bookings)) {
+        const hint =
+          rb.status === 404
+            ? '404：账单接口未部署'
+            : bd && bd.error
+              ? bd.error
+              : rawB && rawB.includes('NOT_FOUND')
+                ? 'Vercel NOT_FOUND'
+                : '云端暂无数据：请先在仍有本地数据的电脑打开本站并完成搬家';
+        if (showToast) showKkToast(hint);
         return false;
       }
       const nb = parseBookingsFromRaw(bd.bookings);
@@ -2234,6 +2312,7 @@
         e.target.value = '';
         if (f) void importKkcamFullFromFile(f);
       });
+      document.getElementById('kkcamSyncDiag')?.addEventListener('click', () => void runKkcamSyncDiagnostics());
     }
 
     function loadState() {
