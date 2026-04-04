@@ -421,14 +421,14 @@
           <div class="flex flex-col gap-3">
             <div class="flex-1 min-w-0">
               <label class="block text-[11px] text-sky-800 mb-1" for="kkcamSyncUserInput"
-                >同步昵称（云端钥匙：订单+机身+调拨+公费+费率）。<strong class="text-sky-950">留空并登录时</strong>会按<strong class="text-sky-950">当前输入的访问口令</strong>自动生成，<strong class="text-sky-950">同一口令</strong>在多台设备上会得到<strong class="text-sky-950">同一把钥匙</strong>（<strong class="text-sky-950">超级口令</strong>与<strong class="text-sky-950">某城合伙口令</strong>不同则钥匙也不同）；若你曾在某台设备上手动改过此处，其他设备须填<strong class="text-sky-950">完全一致</strong>的昵称。</label
+                >同步昵称（可选）：登录后<strong class="text-sky-950">可不填</strong>，系统会按身份自动分配槽位（<span class="font-mono">z</span> 开头）。<strong class="text-sky-950">超级</strong>全店共用一把；<strong class="text-sky-950">某城合伙</strong>该站一把。若要与旧数据或其它口令角色合并，可手填统一昵称<strong class="text-sky-950">覆盖</strong>自动槽位。</label
               >
               <input
                 type="text"
                 id="kkcamSyncUserInput"
                 maxlength="64"
                 autocomplete="off"
-                placeholder="例如 studio_hz_main"
+                placeholder="留空则自动（z…）"
                 class="w-full rounded-xl border border-sky-200 bg-white px-3 py-2 text-sm text-zinc-900"
               />
             </div>
@@ -482,8 +482,7 @@
           </div>
           <div class="text-[10px] text-sky-900/90 mt-2 space-y-1.5 leading-relaxed">
             <p>
-              <strong class="text-sky-950">配好 Redis 后，下面总账仍写 localStorage？</strong>属正常：界面先写本机再展示；<strong>默认</strong>在每次保存后自动把全量推到 Redis（可关掉）。手动「上传」仍可用作立即强制同步。<strong>换手机看电脑上的数：</strong>① 两边打开<strong>同一网址</strong>（勿混用自定义域名与
-              <span class="font-mono">xxx.vercel.app</span>）；② 同步昵称一致（<strong>未手改时同一登录口令会自动一致</strong>）；③ 电脑上先<strong>上传</strong>或勾选自动上传，手机上再<strong>拉取</strong>（本机无业务数据时会尝试自动从云端拉一次）。
+              <strong class="text-sky-950">配好 Redis 后，下面总账仍写 localStorage？</strong>属正常：界面先写本机再展示；<strong>默认</strong>保存后自动推全量到 Redis（可关掉）；<strong>无需填写</strong>本页昵称也会按登录身份自动槽位同步。手动「上传」可立即强制同步。<strong>换手机：</strong>同一网址 + <strong>同一身份</strong>（都登超级或都登同一城合伙）即同一把钥匙；或手填相同昵称。
             </p>
             <p>
               <strong class="text-sky-950">线上（Vercel）：</strong>项目 Environment Variables 填 <span class="font-mono">REDIS_URL</span> → Deployments 里 <strong>Redeploy</strong> 一次 → 自测浏览器打开
@@ -2206,18 +2205,22 @@
     }
 
     /**
-     * 同步昵称与「访问密码」是两套东西；若用户从未填过昵称，用口令派生固定 id，
-     * 这样同一口令在电脑/手机上登录会得到同一把云端钥匙（无需手抄昵称）。
-     * 超级口令与某城合伙口令不同，派生结果也不同——团队若要多端一致，请约定统一用手动昵称或统一用同一种口令角色登录。
+     * 未手填同步昵称时：按当前登录身份自动分配固定 Redis 槽位（z 前缀），无需任何配置即可自动上传。
+     * 超级 → 全店共用一把；某城合伙 → 该站一把。需与另一口令角色合并数据时请手填统一昵称覆盖。
      */
-    async function ensureKkcamSyncUserFromLoginPassword(plainPassword) {
+    async function ensureAutoSyncUserIfEmpty() {
+      if (getKkcamSyncUser()) return false;
+      if (!authRole) return false;
       try {
-        if (getKkcamSyncUser()) return false;
-        const p = String(plainPassword || '').trim();
-        if (!p) return false;
-        const h = await sha256HexUtf8('kkcam_sync_user_v1|' + p);
-        const id = ('k' + h).slice(0, 64);
+        const tag =
+          authRole === 'super'
+            ? 'super'
+            : `partner|${authPartnerSiteId || ''}|${authPartnerCity || ''}`;
+        const h = await sha256HexUtf8('kkcam_auto_sync_v1|' + tag);
+        const id = ('z' + h).slice(0, 64);
         setKkcamSyncUser(id);
+        const inp = document.getElementById('kkcamSyncUserInput');
+        if (inp) inp.value = id;
         return true;
       } catch (e) {
         return false;
@@ -2393,6 +2396,7 @@
       } catch (e) {
         lines.push('② /api/sync/ping 失败：' + e.message);
       }
+      await ensureAutoSyncUserIfEmpty();
       const u = getKkcamSyncUser();
       if (u) {
         try {
@@ -2403,20 +2407,21 @@
           lines.push('③ /api/sync/full 失败：' + e.message);
         }
       } else {
-        lines.push('③ 未填同步昵称，跳过 full 测试');
+        lines.push('③ 未登录且无自动槽位，跳过 full 测试');
       }
       lines.push('');
       lines.push(
-        '解读：① 非 200 多为未部署 api 或 Root Directory 指错。② redis:false 或 hasRedisUrl:false → 检查 Vercel 的 REDIS_URL 并 Redeploy。③ 换设备须同一域名 + 同一昵称 + 先上传再拉取。'
+        '解读：① 非 200 多为未部署 api 或 Root Directory 指错。② redis:false 或 hasRedisUrl:false → 检查 Vercel 的 REDIS_URL 并 Redeploy。③ 换设备须同一域名 + 同一登录身份（或手填同一昵称）+ 先同步再拉取。'
       );
       alert(lines.join('\n\n'));
       showKkToast('诊断完成（见弹窗）');
     }
 
     async function pushFullStateToCloud(showToast) {
+      await ensureAutoSyncUserIfEmpty();
       const user = getKkcamSyncUser();
       if (!user) {
-        if (showToast) showKkToast('请先填写云同步昵称');
+        if (showToast) showKkToast('请先登录后再同步云端');
         return false;
       }
       const payload = buildFullSyncPayloadFromMemory();
@@ -2457,9 +2462,10 @@
     }
 
     async function pullFullStateFromCloudInner(showToast) {
+      await ensureAutoSyncUserIfEmpty();
       const user = getKkcamSyncUser();
       if (!user) {
-        if (showToast) showKkToast('请先填写云同步昵称');
+        if (showToast) showKkToast('请先登录后再拉取云端');
         return false;
       }
       let res;
@@ -2545,13 +2551,14 @@
     async function maybeAutoMigrateLegacyLocalToCloud() {
       try {
         if (localStorage.getItem(KKCAM_CLOUD_MIRROR_KEY) === '1') return;
+        await ensureAutoSyncUserIfEmpty();
         const user = getKkcamSyncUser();
         if (!user) {
           if (legacyLocalStorageLooksPopulated()) {
             try {
               if (sessionStorage.getItem('kkcam_migrate_hint_once') !== '1') {
                 sessionStorage.setItem('kkcam_migrate_hint_once', '1');
-                showKkToast('检测到本地有档期/调货数据：请填写云同步昵称后将自动搬到 Redis');
+                showKkToast('检测到本地有档期/调货数据：登录成功后会自动分配云端槽位并搬家');
               }
             } catch (e) {}
           }
@@ -2575,6 +2582,7 @@
 
     async function maybeAutoHydrateFromCloudWhenEmpty() {
       try {
+        await ensureAutoSyncUserIfEmpty();
         const user = getKkcamSyncUser();
         if (!user || legacyLocalStorageLooksPopulated()) return;
         const ok = await pullFullStateFromCloudInner(false);
@@ -8755,8 +8763,7 @@
         }
       } catch (e) {}
       persistAuth();
-      const passEl = document.getElementById('loginPass');
-      const filledSyncFromPass = await ensureKkcamSyncUserFromLoginPassword(passEl ? passEl.value : '');
+      const autoSlotNew = await ensureAutoSyncUserIfEmpty();
       loadState();
       loadCitySubView();
       await maybeAutoMigrateLegacyLocalToCloud();
@@ -8781,11 +8788,11 @@
       updateCalc();
       adjustCalcPadding();
       initKkcamSyncUI();
-      if (filledSyncFromPass) {
+      if (autoSlotNew) {
         setTimeout(
           () =>
             showKkToast(
-              '已按当前登录口令生成了云端钥匙（输入框内以 k 开头）。换设备请用同一网址 + 同一口令登录；电脑上要先把数据上传或打开自动上传。'
+              '已按登录身份自动分配云端槽位（无需填写）。保存后会自动同步到 Redis；换设备请用同一网址并以相同身份（超级 / 同站合伙）登录。'
             ),
           500
         );
@@ -8814,9 +8821,13 @@
       p.setAttribute('aria-hidden', 'false');
       const body = document.getElementById('appBody');
       if (body) body.classList.add('overflow-hidden');
-      try {
-        document.getElementById('kkcamSyncUserInput')?.focus({ preventScroll: true });
-      } catch (e) {}
+      void ensureAutoSyncUserIfEmpty().then(() => {
+        const inp = document.getElementById('kkcamSyncUserInput');
+        if (inp) inp.value = getKkcamSyncUser();
+        try {
+          inp?.focus({ preventScroll: true });
+        } catch (e) {}
+      });
     }
 
     function closeKkCloudSyncPage() {
