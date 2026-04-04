@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="theme-color" content="#7646FF" />
+  <meta name="theme-color" content="#88C9E8" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="有趣点" />
@@ -41,18 +41,31 @@
           },
           colors: {
             kk: {
-              violet: '#7646FF',
-              pink: '#FFB7FF',
-              mint: '#8EFFC9',
-              ink: '#1A1A1A',
-              muted: '#7A7A7A',
-              line: '#F0F0F0',
+              canvas: '#F0F4F7',
+              surface: '#FFFFFF',
+              ink: '#2D3132',
+              muted: '#5C6368',
+              line: '#D8DEE3',
+              sky: '#88C9E8',
+              skyHi: '#A5D8EF',
+              skyLo: '#6FB4D8',
+              coral: '#E67E5E',
+              sage: '#A3C585',
+              butter: '#DDD4A8',
+              mist: '#B8C5D0',
+              violet: '#4A7A94',
+              pink: '#E8A598',
+              mint: '#A3C585',
             },
           },
           boxShadow: {
-            float: '0 12px 40px rgba(15, 23, 42, 0.08), 0 2px 12px rgba(15, 23, 42, 0.04)',
-            card: '0 4px 12px rgba(0, 0, 0, 0.05)',
-            kk: '0 4px 12px rgba(0, 0, 0, 0.05)',
+            float: '0 12px 40px rgba(45, 49, 50, 0.06), 0 2px 12px rgba(45, 49, 50, 0.03)',
+            card: '0 10px 30px rgba(0, 0, 0, 0.05)',
+            kk: '0 10px 30px rgba(0, 0, 0, 0.05)',
+            macaron: '0 10px 30px rgba(0, 0, 0, 0.05)',
+          },
+          borderRadius: {
+            '4xl': '28px',
           },
         },
       },
@@ -69,8 +82,8 @@
     /* —— CamSaaS 风登录壳（仅 #loginRoot 内）浅色蓝图 · 静态点阵 —— */
     #loginRoot.kk-login-root {
       font-family: 'DM Sans', -apple-system, system-ui, sans-serif;
-      background: #fafafa;
-      color: #0a0a0a;
+      background: var(--kk-canvas);
+      color: var(--kk-ink);
       overflow: hidden;
     }
     /* 交互点阵背景（Canvas · 与登录内容分层） */
@@ -207,20 +220,21 @@
       font-weight: 700;
       letter-spacing: -0.03em;
       line-height: 1.05;
-      color: #09090b;
+      color: var(--kk-ink);
     }
     .kk-login-logo-sub {
       margin-top: 0.2rem;
       font-size: clamp(1.1rem, 2.8vw, 1.35rem);
       font-weight: 600;
-      color: #27272a;
+      color: var(--kk-muted);
       letter-spacing: 0.02em;
     }
     .kk-login-tagline {
       margin-top: 0.75rem;
       font-size: 0.8rem;
       font-style: italic;
-      color: #a1a1aa;
+      color: var(--kk-muted);
+      opacity: 0.88;
     }
     .kk-login-card {
       position: relative;
@@ -228,12 +242,13 @@
       width: 100%;
       max-width: 22rem;
       padding: 2.25rem 1.75rem 1.75rem;
-      background: rgba(255, 255, 255, 0.88);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      color: #0a0a0a;
-      border: 1px solid rgba(228, 228, 231, 0.95);
-      box-shadow: 0 24px 48px -12px rgba(118, 70, 255, 0.07), 0 12px 24px -8px rgba(0, 0, 0, 0.05);
+      border-radius: 26px;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      color: var(--kk-ink);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      box-shadow: var(--kk-shadow-macaron), 0 2px 0 rgba(255, 255, 255, 0.5) inset;
       animation: kk-login-card-in 0.7s ease-out 0.08s both;
     }
     .kk-login-bracket {
@@ -311,6 +326,7 @@
     .kk-login-enter {
       width: 100%;
       padding: 0.95rem 1rem;
+      border-radius: 24px;
       font-family: 'DM Sans', sans-serif;
       font-size: 0.8rem;
       font-weight: 600;
@@ -318,14 +334,15 @@
       text-indent: 0.35em;
       text-transform: uppercase;
       color: #fff;
-      background: #09090b;
-      border: none;
+      background: linear-gradient(145deg, var(--kk-sky-lo) 0%, #3d7a96 48%, #2f5f78 100%);
+      border: 1px solid rgba(255, 255, 255, 0.25);
       cursor: pointer;
-      transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+      box-shadow: 0 10px 28px rgba(47, 95, 120, 0.28);
+      transition: transform 0.2s ease, filter 0.2s ease, box-shadow 0.2s ease;
     }
     .kk-login-enter:hover {
-      background: #27272a;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+      filter: brightness(1.05);
+      box-shadow: 0 14px 34px rgba(47, 95, 120, 0.32);
       transform: translateY(-1px);
     }
     .kk-login-enter:active {
@@ -368,37 +385,67 @@
       color: #a1a1aa;
     }
 
-    /* —— 工作台 · B 端浅色壳（#appShell 内） —— */
+    /* —— 设计令牌 · 马卡龙灰蓝 / Glass-lite（工作台 + 可复用） —— */
+    :root {
+      --kk-canvas: #f0f4f7;
+      --kk-surface: #ffffff;
+      --kk-ink: #2d3132;
+      --kk-muted: #5c6368;
+      --kk-line: #d8dee3;
+      --kk-sky: #88c9e8;
+      --kk-sky-hi: #a5d8ef;
+      --kk-sky-lo: #6fb4d8;
+      --kk-coral: #e67e5e;
+      --kk-sage: #a3c585;
+      --kk-shadow-macaron: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    /* —— 工作台壳（#appShell 内） —— */
     #kkAppSidebar {
-      border-color: #f0f0f0;
+      border-color: var(--kk-line);
     }
     .kk-sidebar-item {
+      border-radius: 22px;
       transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
     }
     .kk-sidebar-item-active {
-      background: rgba(118, 70, 255, 0.1);
-      color: #7646ff;
+      background: linear-gradient(135deg, rgba(165, 216, 239, 0.45) 0%, rgba(136, 201, 232, 0.28) 100%);
+      color: #2f5f78;
       font-weight: 700;
     }
     .kk-sidebar-city {
+      border-radius: 18px;
       transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
     }
     .kk-sidebar-city-active {
-      background: rgba(118, 70, 255, 0.12);
-      color: #7646ff;
+      background: linear-gradient(135deg, rgba(136, 201, 232, 0.35) 0%, rgba(165, 216, 239, 0.25) 100%);
+      color: #2f5f78;
       font-weight: 600;
     }
     .kk-surface-card {
-      border-radius: 20px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      transition: box-shadow 0.3s ease-in-out;
+      border-radius: 26px;
+      box-shadow: var(--kk-shadow-macaron);
+      transition: box-shadow 0.35s ease-in-out;
     }
     .kk-surface-card:hover {
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.06);
+    }
+    /** 核心数据区：柔和天蓝 + 极轻线性渐变 */
+    .kk-card-primary {
+      border-radius: 26px;
+      background: linear-gradient(152deg, var(--kk-sky-hi) 0%, var(--kk-sky) 42%, var(--kk-sky-lo) 100%);
+      box-shadow: 0 12px 32px rgba(111, 180, 216, 0.22), 0 4px 12px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      color: var(--kk-ink);
+    }
+    /** 图标圆底：微弱渐变 */
+    .kk-icon-bubble-sky {
+      background: linear-gradient(145deg, rgba(165, 216, 239, 0.65) 0%, rgba(136, 201, 232, 0.4) 100%);
+      color: #2f5f78;
     }
   </style>
 </head>
-<body id="appBody" class="min-h-screen bg-white text-kk-ink font-sans pb-28 transition-[padding-bottom] duration-200">
+<body id="appBody" class="min-h-screen bg-kk-canvas text-kk-ink font-sans pb-28 transition-[padding-bottom] duration-200">
   <!-- 口令登录（CamSaaS 风 · 超级 / 各站合伙） -->
   <div id="loginRoot" class="kk-login-root fixed inset-0 z-[100]">
     <div class="kk-login-dotgrid-wrap" aria-hidden="true">
@@ -560,15 +607,15 @@
     </div>
   </div>
 
-  <div class="flex flex-col lg:flex-row min-h-[100vh] bg-white">
+  <div class="flex flex-col lg:flex-row min-h-[100vh] bg-kk-canvas">
     <aside
       id="kkAppSidebar"
-      class="w-full lg:w-[260px] lg:min-h-screen shrink-0 border-b lg:border-b-0 lg:border-r border-kk-line bg-white flex flex-col"
+      class="w-full lg:w-[260px] lg:min-h-screen shrink-0 border-b lg:border-b-0 lg:border-r border-kk-line/90 bg-white/92 backdrop-blur-xl lg:rounded-r-[28px] lg:shadow-macaron flex flex-col"
     >
-      <div class="p-6 border-b border-kk-line">
+      <div class="p-6 border-b border-kk-line/80">
         <div class="flex items-center gap-3">
           <div
-            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[12px] bg-kk-violet/12 text-kk-violet"
+            class="flex h-11 w-11 shrink-0 items-center justify-center rounded-[22px] kk-icon-bubble-sky shadow-sm"
             aria-hidden="true"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -592,7 +639,7 @@
     <div class="flex-1 flex flex-col min-w-0 min-h-0">
       <header
         id="kkTopBar"
-        class="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-3 bg-white/95 backdrop-blur-md border-b border-kk-line px-5 py-4"
+        class="sticky top-0 z-40 flex flex-wrap items-center justify-between gap-3 bg-white/80 backdrop-blur-xl border-b border-kk-line/80 px-5 py-3.5 shadow-[0_1px_0_rgba(255,255,255,0.6)]"
       >
         <div class="flex flex-wrap items-baseline gap-x-4 gap-y-1 min-w-0">
           <span id="topBarCity" class="text-base font-bold text-kk-ink tracking-tight">工作台</span>
@@ -618,14 +665,14 @@
           <button
             type="button"
             id="btnPartnerManual"
-            class="hidden rounded-[10px] px-3 py-1.5 text-xs font-medium border border-kk-line bg-white text-kk-ink hover:bg-kk-line/40 transition-all duration-300"
+            class="hidden rounded-[22px] px-3.5 py-2 text-xs font-medium border border-kk-line/90 bg-white/90 text-kk-ink hover:bg-white transition-all duration-300 shadow-sm"
           >
             使用手册
           </button>
           <button
             type="button"
             id="btnOpenCloudSync"
-            class="rounded-[10px] px-3 py-1.5 text-xs font-semibold border border-kk-violet/25 bg-kk-violet/10 text-kk-violet hover:bg-kk-violet/15 transition-all duration-300"
+            class="rounded-[22px] px-3.5 py-2 text-xs font-semibold border border-kk-sky/35 bg-kk-sky/15 text-[#2f5f78] hover:bg-kk-sky/22 transition-all duration-300 shadow-sm"
             title="全站云同步（Redis）"
           >
             云同步
@@ -633,28 +680,28 @@
           <button
             type="button"
             id="btnLogout"
-            class="rounded-[10px] px-3 py-1.5 text-xs font-medium border border-kk-line text-kk-muted hover:bg-kk-line/50 hover:text-kk-ink transition-all duration-300"
+            class="rounded-[22px] px-3.5 py-2 text-xs font-medium border border-kk-line/90 text-kk-muted hover:bg-white/90 hover:text-kk-ink transition-all duration-300"
           >
             切换身份
           </button>
         </div>
       </header>
 
-      <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-6">
+      <div class="flex-1 overflow-y-auto px-5 sm:px-6 py-8 lg:py-10">
         <div class="max-w-[1400px] mx-auto w-full pb-8">
-          <div id="kkWelcomeBlock" class="mb-8">
+          <div id="kkWelcomeBlock" class="mb-8 lg:mb-10">
             <h2 id="kkWelcomeHeading" class="text-3xl sm:text-[32px] font-bold text-kk-ink tracking-tight leading-tight">欢迎回来</h2>
             <p id="stationTitle" class="text-sm text-kk-muted mt-2 max-w-2xl">选择站点查看档期</p>
             <p id="roleBadge" class="text-xs text-kk-muted/90 mt-1"></p>
           </div>
 
-          <div id="stationTools" class="space-y-4">
+          <div id="stationTools" class="space-y-5">
             <div class="flex flex-col xl:flex-row gap-4 items-stretch xl:items-end">
               <div class="flex-1 min-w-0">
                 <label class="block text-xs text-kk-muted mb-1.5 font-medium">机型（全库去重下拉）</label>
                 <select
                   id="searchModelSelect"
-                  class="w-full rounded-[20px] bg-white border border-kk-line px-4 py-3 text-sm text-kk-ink shadow-kk focus:outline-none focus:ring-2 focus:ring-kk-violet/30 focus:border-kk-violet/40 transition-all duration-300 appearance-none bg-[length:1rem] bg-[right_0.75rem_center] bg-no-repeat pr-10"
+                  class="w-full rounded-[24px] bg-white border border-kk-line px-4 py-3 text-sm text-kk-ink shadow-kk focus:outline-none focus:ring-2 focus:ring-kk-sky/40 focus:border-kk-sky/50 transition-all duration-300 appearance-none bg-[length:1rem] bg-[right_0.75rem_center] bg-no-repeat pr-10"
                   style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 stroke=%22%237A7A7A%22 viewBox=%220 0 24 24%22%3E%3Cpath stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%222%22 d=%22M19 9l-7 7-7-7%22/%3E%3C/svg%3E')"
                 >
                   <option value="">全部机型（仅本站列表）</option>
@@ -666,26 +713,26 @@
               <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <div class="sm:w-44">
                   <label class="block text-xs text-kk-muted mb-1.5 font-medium">开始日期</label>
-                  <input type="date" id="rangeStart" class="w-full rounded-[20px] bg-white border border-kk-line px-3 py-2.5 text-sm text-kk-ink shadow-kk focus:outline-none focus:ring-2 focus:ring-kk-mint/50 transition-all duration-300" />
+                  <input type="date" id="rangeStart" class="w-full rounded-[24px] bg-white border border-kk-line px-3 py-2.5 text-sm text-kk-ink shadow-kk focus:outline-none focus:ring-2 focus:ring-kk-sage/45 transition-all duration-300" />
                 </div>
                 <div class="sm:w-44">
                   <label class="block text-xs text-kk-muted mb-1.5 font-medium">结束日期</label>
-                  <input type="date" id="rangeEnd" class="w-full rounded-[20px] bg-white border border-kk-line px-3 py-2.5 text-sm text-kk-ink shadow-kk focus:outline-none focus:ring-2 focus:ring-kk-mint/50 transition-all duration-300" />
+                  <input type="date" id="rangeEnd" class="w-full rounded-[24px] bg-white border border-kk-line px-3 py-2.5 text-sm text-kk-ink shadow-kk focus:outline-none focus:ring-2 focus:ring-kk-sage/45 transition-all duration-300" />
                 </div>
               </div>
               <p class="text-[11px] text-kk-muted mt-2">上述日期同时用于：档期穿透筛选、下方「区间总账」与「账单流水」汇总。</p>
-              <p id="scheduleHint" class="hidden text-xs text-emerald-800 bg-kk-mint/25 border border-kk-mint/50 rounded-[20px] px-4 py-3 leading-relaxed">
+              <p id="scheduleHint" class="hidden text-xs text-[#3d5a42] bg-gradient-to-br from-kk-sage/22 to-kk-sky/12 border border-kk-sage/35 rounded-[24px] px-4 py-3.5 leading-relaxed shadow-sm">
                 已启用档期筛选：<strong class="font-semibold text-emerald-900">绿框</strong>表示所选日期段内可租；<strong class="font-semibold text-amber-900">琥珀框</strong>表示该段已有占用——<strong class="font-semibold">仍可点击卡片</strong>，在弹窗里为<strong>其他日期</strong>录入新档期。清空或改掉顶部日期后，卡片会恢复常亮样式。选定机型时还将穿透全网各站展示空闲机身。
               </p>
-              <div id="finRangeSummary" class="mt-4 kk-surface-card border border-kk-line bg-white px-6 py-4">
-                <p class="text-xs text-kk-muted mb-2 leading-relaxed">
-                  时间段总账 · 数字来自本机 <span class="font-mono text-kk-ink/80">localStorage</span>（拉取云端成功后也会写回此处再展示）· 实收 =
-                  <span class="font-mono text-kk-ink/90">租金 − 租金×0.006 − 3.12 − 快递 − 额外</span>
+              <div id="finRangeSummary" class="mt-5 kk-card-primary px-6 py-5 sm:px-7 sm:py-5">
+                <p class="text-xs text-kk-ink/50 mb-2.5 leading-relaxed">
+                  时间段总账 · 数字来自本机 <span class="font-mono text-kk-ink/75">localStorage</span>（拉取云端成功后也会写回此处再展示）· 实收 =
+                  <span class="font-mono text-kk-ink/80">租金 − 租金×0.006 − 3.12 − 快递 − 额外</span>
                 </p>
-                <div class="flex flex-wrap gap-x-8 gap-y-2 text-sm">
-                  <div><span class="text-kk-muted">总实收</span> <span id="finSumActual" class="ml-1 font-mono font-semibold text-emerald-600">¥0.00</span></div>
-                  <div><span class="text-kk-muted">个人到账(估)</span> <span id="finSumPersonal" class="ml-1 font-mono font-semibold text-kk-violet">¥0.00</span></div>
-                  <div><span class="text-kk-muted">公共支出(估)</span> <span id="finSumPub" class="ml-1 font-mono font-semibold text-kk-ink">¥0.00</span></div>
+                <div class="flex flex-wrap gap-x-8 gap-y-2.5 text-sm">
+                  <div><span class="text-kk-ink/45">总实收</span> <span id="finSumActual" class="ml-1 font-mono font-semibold text-[#4a8f6a]">¥0.00</span></div>
+                  <div><span class="text-kk-ink/45">个人到账(估)</span> <span id="finSumPersonal" class="ml-1 font-mono font-semibold text-[#2f5f78]">¥0.00</span></div>
+                  <div><span class="text-kk-ink/45">公共支出(估)</span> <span id="finSumPub" class="ml-1 font-mono font-semibold text-kk-ink">¥0.00</span></div>
                 </div>
               </div>
             </div>
@@ -748,7 +795,7 @@
         <div id="cardGrid"></div>
         <p id="emptyHint" class="hidden text-center text-zinc-500 py-12">没有匹配的相机</p>
       </div>
-      <div id="finFlowSection" class="mt-8 mb-6 kk-surface-card border border-kk-line bg-white p-6">
+      <div id="finFlowSection" class="mt-10 mb-6 kk-surface-card border border-kk-line/90 bg-white/95 p-6 sm:p-7">
         <h3 class="text-base font-bold text-kk-ink">账单流水</h3>
         <p class="text-xs text-kk-muted mt-1 mb-4">
           已完单 · 按完单日期降序 · 与顶部日期区间联动（展示的是本机已加载的订单）。「修改」需该单<strong>未</strong>勾选财务页「合伙人已结清」；「删除」仍可删误录。跨设备请点顶栏<strong>云同步</strong>进入 Redis 全量页或 JSON 导入；持久化在本机
@@ -3532,8 +3579,8 @@
       nav.classList.remove('hidden');
       const onSchedule = citySubView === 'schedule';
       const base =
-        'city-sub-tab rounded-[12px] px-4 py-2 text-sm font-medium border transition-all duration-300 ease-in-out';
-      const active = ' bg-kk-violet/12 text-kk-violet border-kk-violet/25 font-bold';
+        'city-sub-tab rounded-[22px] px-4 py-2 text-sm font-medium border transition-all duration-300 ease-in-out';
+      const active = ' bg-kk-sky/18 text-[#2f5f78] border-kk-sky/35 font-bold shadow-sm';
       const idle = ' bg-white text-kk-muted border-kk-line hover:bg-kk-line/40';
       if (ts) ts.className = base + (onSchedule ? active : idle);
       if (ta) ta.className = base + (!onSchedule ? active : idle);
@@ -3577,7 +3624,7 @@
         btn.type = 'button';
         btn.dataset.sidebarNav = it.key;
         btn.className =
-          'kk-sidebar-item w-full rounded-xl px-3 py-2.5 text-sm text-kk-ink/85 font-medium text-left flex items-center gap-2';
+          'kk-sidebar-item w-full rounded-[22px] px-3 py-2.5 text-sm text-kk-ink/85 font-medium text-left flex items-center gap-2';
         btn.textContent = it.label;
         nav.appendChild(btn);
       });
@@ -3590,7 +3637,7 @@
           b.type = 'button';
           b.dataset.sidebarCity = city;
           b.className =
-            'kk-sidebar-city rounded-lg border border-kk-line px-2.5 py-1 text-xs font-medium text-kk-muted hover:bg-kk-line/50 transition-all duration-300';
+            'kk-sidebar-city rounded-[18px] border border-kk-line px-2.5 py-1 text-xs font-medium text-kk-muted hover:bg-kk-line/50 transition-all duration-300';
           b.textContent = city;
           inner.appendChild(b);
         });
@@ -3620,7 +3667,7 @@
         const c = btn.getAttribute('data-sidebar-city');
         const on = isCityStationPage() && stationPage === c;
         btn.classList.toggle('kk-sidebar-city-active', on);
-        btn.classList.toggle('border-kk-violet/30', on);
+        btn.classList.toggle('border-kk-sky/40', on);
       });
     }
 
@@ -4326,10 +4373,10 @@
           ${cities
             .map(
               (x) => `
-            <button type="button" class="overview-go text-left kk-surface-card border border-kk-line bg-white p-6 hover:border-kk-violet/35 transition-all duration-300 ease-in-out" data-page="${x.key}">
+            <button type="button" class="overview-go text-left kk-surface-card border border-kk-line/90 bg-white/95 p-6 hover:border-kk-sky/40 transition-all duration-300 ease-in-out" data-page="${x.key}">
               <div class="text-lg font-bold text-kk-ink">${x.label}</div>
               <p class="text-sm text-kk-muted mt-2 leading-relaxed">${x.sub}</p>
-              <p class="text-xs text-kk-violet mt-5 font-semibold">进入分站 →</p>
+              <p class="text-xs text-[#2f5f78] mt-5 font-semibold">进入分站 →</p>
             </button>
           `
             )
@@ -8484,17 +8531,17 @@
                   const showDel = bk && canDeleteFinFlowBooking(bk);
                   const showEdit = bk && canEditFinFlowBooking(bk);
                   const editBtn = showEdit
-                    ? `<button type="button" class="fin-flow-edit inline-flex shrink-0 items-center justify-center rounded-[10px] border border-kk-violet/25 bg-kk-violet/10 px-2 py-1 text-[11px] font-semibold text-kk-violet hover:bg-kk-violet/15 active:scale-[0.98] transition-all duration-300" data-booking-id="${String(r.bid).replace(/"/g, '')}">修改</button>`
+                    ? `<button type="button" class="fin-flow-edit inline-flex shrink-0 items-center justify-center rounded-[20px] border border-kk-sky/35 bg-kk-sky/12 px-2.5 py-1 text-[11px] font-semibold text-[#2f5f78] hover:bg-kk-sky/20 active:scale-[0.98] transition-all duration-300" data-booking-id="${String(r.bid).replace(/"/g, '')}">修改</button>`
                     : '';
                   const delBtn = showDel
-                    ? `<button type="button" class="fin-flow-del inline-flex shrink-0 items-center justify-center rounded-[10px] border border-kk-pink/40 bg-kk-pink/15 px-2 py-1 text-[11px] font-semibold text-kk-ink hover:bg-kk-pink/25 active:scale-[0.98] transition-all duration-300" data-booking-id="${String(r.bid).replace(/"/g, '')}">删除</button>`
+                    ? `<button type="button" class="fin-flow-del inline-flex shrink-0 items-center justify-center rounded-[20px] border border-kk-coral/35 bg-kk-coral/12 px-2.5 py-1 text-[11px] font-semibold text-kk-ink/90 hover:bg-kk-coral/18 active:scale-[0.98] transition-all duration-300" data-booking-id="${String(r.bid).replace(/"/g, '')}">删除</button>`
                     : '';
                   const actions =
                     editBtn || delBtn
                       ? `<div class="inline-flex flex-wrap gap-1 justify-end">${editBtn}${delBtn}</div>`
                       : '<span class="text-kk-line text-[11px]">—</span>';
                   const stripe = idx % 2 === 1 ? 'bg-kk-line/20' : 'bg-white';
-                  return `<tr class="${stripe} hover:bg-kk-violet/[0.06] transition-colors duration-300"><td class="px-4 py-2.5 font-mono text-kk-ink">${r.ymd}</td><td class="px-4 py-2.5 text-kk-ink">${String(r.model).replace(/</g, '')}</td><td class="px-4 py-2.5 text-right font-mono">${fmt(r.rent)}</td><td class="px-4 py-2.5 text-right font-mono text-emerald-600">${fmt(r.actual)}</td><td class="px-4 py-2.5 text-kk-ink text-[11px] whitespace-nowrap">${String(r.modeShort).replace(/</g, '')}</td><td class="px-4 py-2.5 text-right whitespace-nowrap">${actions}</td></tr>`;
+                  return `<tr class="${stripe} hover:bg-kk-sky/[0.07] transition-colors duration-300"><td class="px-4 py-2.5 font-mono text-kk-ink">${r.ymd}</td><td class="px-4 py-2.5 text-kk-ink">${String(r.model).replace(/</g, '')}</td><td class="px-4 py-2.5 text-right font-mono">${fmt(r.rent)}</td><td class="px-4 py-2.5 text-right font-mono text-[#4a8f6a]">${fmt(r.actual)}</td><td class="px-4 py-2.5 text-kk-ink text-[11px] whitespace-nowrap">${String(r.modeShort).replace(/</g, '')}</td><td class="px-4 py-2.5 text-right whitespace-nowrap">${actions}</td></tr>`;
                 })
                 .join('')
             : '';
@@ -9148,12 +9195,12 @@
       speed: 0,
     };
 
-    /** ReactBits DotGrid 参数 → 原生 Canvas；配色对齐 B 端 #7646FF（无 GSAP） */
+    /** ReactBits DotGrid 参数 → 原生 Canvas；配色对齐马卡龙灰蓝天蓝（无 GSAP） */
     const LOGIN_DOT_GRID = {
       dotSize: 5,
       gap: 15,
-      baseColor: '#D8CFF5',
-      activeColor: '#7646FF',
+      baseColor: '#C8D8E6',
+      activeColor: '#6FB4D8',
       proximity: 120,
       speedTrigger: 100,
       maxSpeed: 5000,
