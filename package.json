@@ -4,12 +4,16 @@
   "description": "相机租赁单页 + Redis 账单同步",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "db:up": "docker compose -f database/docker-compose.yml up -d",
+    "db:init": "docker compose -f database/docker-compose.yml exec -T postgres psql -U kkcam -d kkcam -v ON_ERROR_STOP=1 < database/schema.sql",
+    "db:bootstrap": "bash database/bootstrap.sh"
   },
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
-    "ioredis": "^5.4.1"
+    "ioredis": "^5.4.1",
+    "pg": "^8.13.1"
   }
 }

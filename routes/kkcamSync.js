@@ -7,7 +7,7 @@ const {
   writeBookings,
   readFullPayload,
   writeFullPayload,
-} = require('../lib/kkcamRedisSync');
+} = require('../lib/kkcamSyncStore');
 
 const router = express.Router();
 

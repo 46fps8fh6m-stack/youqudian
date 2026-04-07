@@ -2593,7 +2593,7 @@
       }
       lines.push('');
       lines.push(
-        '解读：① 非 200 多为未部署 api 或 Root Directory 指错。② redis:false 或 hasRedisUrl:false → 检查 Vercel 的 REDIS_URL 并 Redeploy。③ 换设备须同一域名 + 同一登录身份（或手填同一昵称）+ 先同步再拉取。'
+        '解读：① 非 200 多为未部署 api 或 Root Directory 指错。② 若用 Postgres：DATABASE_URL 未配或 postgres:false；若用 Redis：hasRedisUrl:false / redis:false。③ 换设备须同一域名 + 同一登录身份（或手填同一昵称）+ 先同步再拉取。'
       );
       alert(lines.join('\n\n'));
       showKkToast('诊断完成（见弹窗）');

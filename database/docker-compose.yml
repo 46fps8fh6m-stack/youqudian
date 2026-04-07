@@ -1,0 +1,24 @@
+# 一键本地库：在项目根目录执行 ./database/bootstrap.sh
+# 或：docker compose -f database/docker-compose.yml up -d
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: kkcam-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kkcam
+      POSTGRES_PASSWORD: kkcam_local_dev
+      POSTGRES_DB: kkcam
+    ports:
+      - "5432:5432"
+    volumes:
+      - kkcam_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kkcam -d kkcam"]
+      interval: 3s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  kkcam_pgdata:

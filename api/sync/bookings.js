@@ -4,7 +4,7 @@
 const {
   readBookings,
   writeBookings,
-} = require('../../lib/kkcamRedisSync');
+} = require('../../lib/kkcamSyncStore');
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -44,6 +44,6 @@ module.exports = async (req, res) => {
     return res.status(405).json({ ok: false, error: 'method not allowed' });
   } catch (e) {
     console.error('[vercel sync bookings]', e);
-    return res.status(500).json({ ok: false, error: e.message || 'redis error' });
+    return res.status(500).json({ ok: false, error: e.message || 'sync store error' });
   }
 };

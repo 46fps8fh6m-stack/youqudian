@@ -1,6 +1,6 @@
 # 有趣点相机屋 · 相机租赁单页
 
-单文件前端 `index.html` + 可选 **Redis 全站云同步**（Vercel Serverless 或本地 Express）。
+单文件前端 `index.html` + 可选 **云同步**：**PostgreSQL**（`DATABASE_URL`，推荐）或 **Redis**（`REDIS_URL`），Vercel Serverless 或本地 Express 共用同一套 `/api/sync` 接口。
 
 ---
 
@@ -11,7 +11,7 @@
 | 层级 | 作用 |
 |------|------|
 | **localStorage** | 应用**运行时**读写数据的地方；界面上的「时间段总账」等文案会写明数据来自本机 localStorage。 |
-| **Redis（/api/sync）** | 用于**多设备备份与对齐**：你在网页里点「上传到云端 / 从云端拉取」时，才会和 Redis 交换**全量包**（订单、各城机身、调拨申请、公费、费率等）。 |
+| **Postgres 或 Redis（/api/sync）** | 用于**多设备备份与对齐**：点「上传到云端 / 从云端拉取」时交换**全量包**。服务端若配置了 **`DATABASE_URL` 则写入数据库**（见 `database/schema.sql`），否则用 Redis。 |
 
 因此：**不会因为部署了 Vercel 或填了 REDIS_URL，就自动把界面改成「来自云端」**；跨设备要靠**同一域名 + 同一云同步昵称 + 手动或自动上传/拉取**。
 
@@ -43,7 +43,9 @@
 
 ```bash
 npm install
-# 在项目根目录创建 .env，仅一行（勿提交）：
+# 在项目根目录创建 .env（勿提交），二选一或同时存在时优先 Postgres：
+# DATABASE_URL=postgresql://kkcam:kkcam_local_dev@127.0.0.1:5432/kkcam
+# 本地一键建库：npm run db:bootstrap（需 Docker）
 # REDIS_URL=redis://...
 npm start
 ```
@@ -54,12 +56,12 @@ npm start
 
 ## Vercel 部署检查清单
 
-1. **GitHub 仓库根目录** 必须包含：`index.html`、`package.json`、`api/sync/*.js`、`lib/kkcamRedisSync.js`。
+1. **GitHub 仓库根目录** 必须包含：`index.html`、`package.json`、`api/sync/*.js`、`lib/kkcamRedisSync.js`、`lib/kkcamPostgresSync.js`、`lib/kkcamSyncStore.js`。
 2. **Settings → General → Root Directory**：若上述文件在仓库根目录，则**留空**；若在子目录，填到与 `package.json` 同级的那一层。
 3. **Settings → Environment Variables**  
-   - 添加 **`REDIS_URL`**（与 Vercel Redis 或 Redis 云控制台中的连接串一致）。  
-   - 作用域勾选 **Production**（需要时再加 Preview）。  
-   - 保存后务必 **Deployments → 最新一条 → ⋯ → Redeploy**。
+   - **推荐**：添加 **`DATABASE_URL`**（Neon / Supabase / RDS 等 Postgres，连接串通常含 `sslmode=require`）；并在数据库中执行一次 `database/schema.sql`。  
+   - 或添加 **`REDIS_URL`**（与 Vercel Redis 等一致）。**同时存在时优先使用 `DATABASE_URL`。**  
+   - 作用域勾选 **Production**（需要时再加 Preview）。保存后 **Redeploy**。
 4. **自定义域名**（如 `youqudian.top`）在 **Settings → Domains** 绑定到**当前项目**；日常书签请固定使用该域名，勿混用 `xxx.vercel.app`（不同域名 = 不同 localStorage）。
 5. 自测接口（将 `你的昵称` 换成云同步里填的昵称）：
 
