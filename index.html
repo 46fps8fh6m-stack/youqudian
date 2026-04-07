@@ -2628,6 +2628,9 @@
               : raw && raw.includes('NOT_FOUND')
                 ? 'Vercel NOT_FOUND'
                 : String(res.status);
+        try {
+          console.warn('[kkcam] 上传云端失败', hint, res.status, raw && raw.slice ? raw.slice(0, 200) : '');
+        } catch (e) {}
         if (showToast) showKkToast('上传失败：' + hint);
         return false;
       }
@@ -2685,6 +2688,8 @@
         updateCalc();
         return true;
       }
+      /* 无全量包时：切勿用云端空账单 [] 覆盖本机，否则像「永远不同步」且会清空本地订单 */
+      const noFull = data.payload == null;
       let rb;
       try {
         rb = await fetch(`${kkcamSyncBookingsUrl()}?user=${encodeURIComponent(user)}`, {
@@ -2706,6 +2711,14 @@
                 ? 'Vercel NOT_FOUND'
                 : '云端暂无数据：请先在仍有本地数据的电脑打开本站并完成搬家';
         if (showToast) showKkToast(hint);
+        return false;
+      }
+      if (noFull && bd.bookings.length === 0) {
+        if (showToast) {
+          showKkToast(
+            '云端该槽位尚无数据：请确认与上传端「同步昵称」一致，且上传端已成功上传（设置里看诊断）；若刚改用 Postgres，需在库里执行 database/schema.sql 并重新上传。'
+          );
+        }
         return false;
       }
       const nb = parseBookingsFromRaw(bd.bookings);
